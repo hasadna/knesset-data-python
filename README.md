@@ -3,10 +3,12 @@ knesset-data python module
 
 A python module that provides api to available Israeli Parliament (Knesset) data
 
+Part of the [Knesset data project](https://github.com/hasadna/knesset-data/blob/master/README.md)
+
 ### Installation
 * $ pip install knesset-data
 
-### Usage Example
+#### Usage Example
 * $ python
 * >>> from knesset_data.dataservice.committees import Committee
 * >>> committees = Committee.get_all_active_committees()
@@ -14,6 +16,10 @@ A python module that provides api to available Israeli Parliament (Knesset) data
 * 19
 * >>> print committees[0].name
 * ועדת הכנסת
+
+### Contributing
+
+Check out the [Knesset kata contribution guide](https://github.com/hasadna/knesset-data/blob/master/CONTRIBUTING.md)
 
 ### Project Administration
 
