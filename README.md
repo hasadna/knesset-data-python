@@ -26,16 +26,15 @@ Check out the [Knesset kata contribution guide](https://github.com/hasadna/kness
 #### Publishing a release to pypi
 
 * merge some pull requests
-* create a new draft release (https://github.com/hasadna/knesset-data-python/releases)
+* create or update the latest draft release (https://github.com/hasadna/knesset-data-python/releases)
   * update the release notes, save draft
-* edit [/python/setup.py](/python/setup.py)
+* edit [/python/setup.py](https://github.com/hasadna/knesset-data-python/edit/master/setup.py)
   * update the version to match the version in the GitHub draft release
 * publish the version to pypi
   * `$ cd knesset-data-python`
+  * `knesset-data-python$ git checkout master`
+  * `knesset-data-python$ git pull hasadna master`
   * `knesset-data-python$ bin/update_pypi.sh`
-* commit and push the version change
-  * `knesset-data-python$ git commit -am "bump version to ..."`
-  * `knesset-data-python$ git push hasadna master`
 * publish the release on GitHub
 
 #### Updating Open Knesset dependency
