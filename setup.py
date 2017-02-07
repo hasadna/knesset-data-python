@@ -2,10 +2,10 @@
 from setuptools import setup, find_packages
 import os, sys
 
-if os.getenv("TRAVIS_TAG", "") != "" and os.getenv("TRAVIS_REPO_SLUG", "") == "hasadna/knesset-data-python":
-    # this is a travis build eligible for publishing to pypi
-    # get the version number from the tag name
-    version = os.getenv("TRAVIS_TAG").lstrip("v")
+if os.path.exists("VERSION.txt"):
+    # this file can be written by CI tools (e.g. Travis)
+    with open("VERSION.txt") as version_file:
+        version = version_file.read().strip().strip("v")
 else:
     version = "0.0.0"
 
