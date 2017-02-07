@@ -5,7 +5,7 @@ knesset-data python module
 
 A python module that provides api to available Israeli Parliament (Knesset) data
 
-Part of the [Knesset data project](https://github.com/hasadna/knesset-data/blob/master/README.md)
+This module provides low-level APIs to support other higher-level modules from the [Knesset data project](https://github.com/hasadna/knesset-data/blob/master/README.md)
 
 ### Installation
 * $ pip install knesset-data
@@ -13,7 +13,7 @@ Part of the [Knesset data project](https://github.com/hasadna/knesset-data/blob/
 #### Usage Example
 * $ python
 * >>> from knesset_data.dataservice.committees import Committee
-* >>> committees = Committee.get_all_active_committees()
+* >>> committees = list(Committee.get_all_active_committees())
 * >>> len(committees)
 * 19
 * >>> print committees[0].name
@@ -36,9 +36,9 @@ Travis publishes to pypi automatically on every published release (or tag)
 * when ready, publish the release on GitHub
 * travis will automatically publish to pypi
 
-#### Updating Open Knesset dependency
+#### Updating dependant projects
 
-After publishing a release you probably want to update it in Open-Knesset
+After publishing a release you probably want to update the dependency in dependant projects
 
 In Open Knesset repository -
 
