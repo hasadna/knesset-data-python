@@ -1,6 +1,8 @@
 knesset-data python module
 ==========================
 
+[![Build Status](https://travis-ci.org/hasadna/knesset-data-python.svg?branch=master)](https://travis-ci.org/hasadna/knesset-data-python)
+
 A python module that provides api to available Israeli Parliament (Knesset) data
 
 Part of the [Knesset data project](https://github.com/hasadna/knesset-data/blob/master/README.md)
