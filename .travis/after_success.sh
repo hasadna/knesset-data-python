@@ -7,13 +7,10 @@ set -e  # exit on errors
 if [ "${TRAVIS_TAG}" != "" ] && [ "${TRAVIS_REPO_SLUG}" == "hasadna/knesset-data-python" ] && [ "${TRAVIS_PYPI_USER}" != "" ] && [ "${TRAVIS_PYPI_PASS}" != "" ]; then
     echo "publishing tagged release to pypi"
     echo "${TRAVIS_TAG}" > VERSION.txt
-    echo "[distutils]
-index-servers=pypi
-[pypi]
-repository = https://upload.pypi.org/legacy/
-username = ${TRAVIS_PYPI_USER}
-password = ${TRAVIS_PYPI_PASS}" > "${HOME}/.pypirc"
-    ./setup.py bdist_wheel upload
+    rm -rf dist build
+    pip install twine
+    ./setup.py bdist_wheel
+    TWINE_USERNAME="${TRAVIS_PYPI_USER}" TWINE_PASSWORD="${TRAVIS_PYPI_PASS}" twine upload dist/*
 else
     echo "skipping publishing to pypi because not a tagged release or not under hasadna repo"
 fi
