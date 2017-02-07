@@ -13,7 +13,7 @@ index-servers=pypi
 [pypi]
 repository = https://upload.pypi.org/legacy/
 username = ${TRAVIS_PYPI_USER}
-password = ${TRAVIS_PYPI_PASS}" > ~/.pypirc
+password = ${TRAVIS_PYPI_PASS}" > "${HOME}/.pypirc"
     ./setup.py sdist bdist_wheel upload
 else
     echo "skipping publishing to pypi because not a tagged release or not under hasadna repo"
