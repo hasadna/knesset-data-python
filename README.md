@@ -23,6 +23,24 @@ Check out the [Knesset kata contribution guide](https://github.com/hasadna/kness
 
 ### Project Administration
 
+The project should be published to pypi for every release
+
+#### Registering / authenticating with pypi
+
+* Before publishing to pypi you should have a user on [pypi](https://pypi.python.org/pypi)
+* Create ~/.pypirc file and paste the following (modify username / password):
+```
+[distutils]
+index-servers=pypi
+
+[pypi]
+repository = https://upload.pypi.org/legacy/
+username = <username>
+password = <password>
+```
+* `chmod 400 ~/.pypirc`
+* Ask an authorized user to authorize you to publish to pypi.
+
 #### Publishing a release to pypi
 
 * merge some pull requests
@@ -30,11 +48,12 @@ Check out the [Knesset kata contribution guide](https://github.com/hasadna/kness
   * update the release notes, save draft
 * edit [/python/setup.py](https://github.com/hasadna/knesset-data-python/edit/master/setup.py)
   * update the version to match the version in the GitHub draft release
-* publish the version to pypi
+* make sure you are publishing latest master
   * `$ cd knesset-data-python`
   * `knesset-data-python$ git checkout master`
   * `knesset-data-python$ git pull hasadna master`
-  * `knesset-data-python$ bin/update_pypi.sh`
+* publish the version to pypi
+  * `knesset-data-python$ ./setup.py sdist bdist_wheel upload`
 * publish the release on GitHub
 
 #### Updating Open Knesset dependency
