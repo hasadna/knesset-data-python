@@ -51,8 +51,10 @@ In Open Knesset repository -
 The .travis.yml file contains encrypted variables, you add them using the travis cli client:
 
 ```
-$ travis encrypt TRAVIS_PYPI_USER=<YOUR_PYPI_USER> --add env.global
-$ travis encrypt TRAVIS_PYPI_PASS=<YOUR_PYPI_PASSWORD> --add env.global
+$ travis encrypt --repo hasadna/knesset-data-python TRAVIS_PYPI_USER=(YOUR_PYPI_USER) TRAVIS_PYPI_PASS=(YOUR_PYPI_PASSWORD)
+$ history -c
 ```
 
-Check ouy .travis/after_success.sh to see how the publishing to pypi works
+add the secure env var to .travis.yml
+
+Check out .travis/after_success.sh to see how the publishing to pypi works
