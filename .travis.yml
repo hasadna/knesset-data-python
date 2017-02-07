@@ -15,6 +15,7 @@ deploy:
   user: OriHoch
   password:
     secure: DANNrv22omwJz+jCGhe+p8easxCHMdteMZEKqDEf1UR8tVROdp+VC3w/dDJ+DNy2T8F8Dnx0XYPNaGxXONOIQmL8oN5rcPHHTliTkgtVT3MpkSD9XEfcMUaIwMfiVTvGDM3SzSNsrKEz+ouHbakZuf1haKjc65Ij1gWUg6GKZ8HGIn/DvFe/ZIK8A8IAGdJlmvSHt3lIrJIlyBVPfQChcGZK/r53d8o/epsFeLw0YSDzk+8HPx/mNMQhjLsPXPfNriv6gbdLlSOlDcuBXpzjeao+QQ03/O6jY2+SijwJllY8dQ7p2AGdVmO0JT6mX57qWENbeFbSAaHr07Gjb/YssRXDycqzX+6cpGL54gWHfKNmrYeOg0NDI5Wq83WJJcXkpjCOYu6G7nMwZvoMOjuy9dEyiHAOJVQQkF0vF7ggAZBGwbNmZxGxHvNkY5gw+Fnz7ovwQamgHzlq1OGh8JUZgiSbJ6+lIiZ0YHf8ZoDPb4d7RuA9KNVVR4WcIjDpVK9JxxpCstCOSG2oZevyxQWz5oeGJDY2eMB68ERdo2al48D7/gGpNLrIWiBHk9Hmiphmxmj+Ltov0rVKOekuVXvsixbav6ptHniaUVo8iLrG4BD2/AMtfm/Ufamixm6PoUgM0q/aiUFclWgiWF+tOO3MxxAVpErGSfSozoqMO7bpLLk=
+  server: https://upload.pypi.org/legacy
   on:
     tags: true
     distributions: sdist bdist_wheel
