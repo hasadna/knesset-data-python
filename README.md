@@ -51,7 +51,8 @@ In Open Knesset repository -
 The .travis.yml file contains encrypted variables, you add them using the travis cli client:
 
 ```
-$ travis encrypt --repo hasadna/knesset-data-python TRAVIS_PYPI_USER=(YOUR_PYPI_USER) TRAVIS_PYPI_PASS=(YOUR_PYPI_PASSWORD)
+$ git config --local travis.slug hasadna/knesset-data-python
+$ travis encrypt TRAVIS_PYPI_USER=(YOUR_PYPI_USER) TRAVIS_PYPI_PASS=(YOUR_PYPI_PASSWORD) --add
 $ history -c
 ```
 
