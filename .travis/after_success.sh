@@ -10,7 +10,9 @@ if [ "${TRAVIS_TAG}" != "" ] && [ "${TRAVIS_REPO_SLUG}" == "hasadna/knesset-data
     rm -rf dist build
     pip install twine
     ./setup.py bdist_wheel
-    TWINE_USERNAME="${TRAVIS_PYPI_USER}" TWINE_PASSWORD="${TRAVIS_PYPI_PASS}" twine upload dist/*
+    export TWINE_USERNAME="${TRAVIS_PYPI_USER}"
+    export TWINE_PASSWORD="${TRAVIS_PYPI_PASS}"
+    twine upload dist/*
 else
     echo "skipping publishing to pypi because not a tagged release or not under hasadna repo"
 fi
