@@ -1,14 +1,14 @@
 import datetime
-
 import requests
 from bs4 import BeautifulSoup, Tag
 from requests import Request
 import logging
-
 from knesset_data.dataservice.constants import SERVICE_URLS
 import knesset_data.dataservice.utils as ds_utils
 from knesset_data.utils.github import github_add_or_update_issue
 from knesset_data.dataservice.exceptions import KnessetDataServiceRequestException
+from copy import deepcopy
+from collections import OrderedDict
 
 
 logger=logging.getLogger(__name__)
@@ -16,6 +16,13 @@ logger=logging.getLogger(__name__)
 
 class BaseKnessetDataServiceField(object):
     DEPENDS_ON_OBJ_FIELDS = False
+
+    def __init__(self, json_table_schema=None, description=None, title=None):
+        if not json_table_schema:
+            json_table_schema = "string"
+        self._json_table_schema = json_table_schema
+        self._title = title
+        self._description = description
 
     def get_value(self, entry):
         raise Exception('must be implemented by extending classes')
@@ -27,9 +34,24 @@ class BaseKnessetDataServiceField(object):
     def set_value(self, obj, attr_name, entry):
         setattr(obj, attr_name, self.get_value(entry))
 
+    def get_json_table_schema_field(self, name=None):
+        if isinstance(self._json_table_schema, dict):
+            schema = deepcopy(self._json_table_schema)
+        else:
+            schema = {"type": self._json_table_schema}
+        if "title" not in schema and self._title:
+            schema["title"] = self._title
+        if "description" not in schema and self._description:
+            schema["description"] = self._description
+        if name:
+            schema["name"] = name
+        return schema
+
 
 class KnessetDataServiceSimpleField(BaseKnessetDataServiceField):
-    def __init__(self, knesset_field_name):
+
+    def __init__(self, knesset_field_name, json_table_schema=None, description=None, title=None):
+        super(KnessetDataServiceSimpleField, self).__init__(json_table_schema=json_table_schema, description=description, title=title)
         self._knesset_field_name = knesset_field_name
 
     def get_value(self, entry):
@@ -54,6 +76,7 @@ class KnessetDataServiceDateTimeField(BaseKnessetDataServiceField):
     DEPENDS_ON_OBJ_FIELDS = True
 
     def __init__(self, date_attr_name, time_attr_name):
+        super(KnessetDataServiceDateTimeField, self).__init__()
         self._date_attr_name = date_attr_name
         self._time_attr_name = time_attr_name
 
@@ -67,6 +90,7 @@ class KnessetDataServiceLambdaField(BaseKnessetDataServiceField):
     DEPENDS_ON_OBJ_FIELDS = True
 
     def __init__(self, func):
+        super(KnessetDataServiceLambdaField, self).__init__()
         self._func = func
 
     def set_value(self, obj, attr_name, entry):
@@ -99,14 +123,18 @@ class BaseKnessetDataServiceObject(object):
         return KnessetDataServiceRequestException(cls._get_service_name(), cls._get_method_name(), original_exception)
 
     @classmethod
-    def _get_soup(cls, url, params=None):
+    def _get_soup(cls, url, params=None, proxies=None):
         params = {} if params == None else params
         timeout = params.pop('__timeout__', cls.DEFAULT_REQUEST_TIMEOUT_SECONDS)
         try:
-            response = requests.get(url, params=params, timeout=timeout)
-            return BeautifulSoup(response.content, 'html.parser')
+            proxies = proxies if proxies else {}
+            response = requests.get(url, params=params, timeout=timeout, proxies=proxies)
         except requests.RequestException, e:
             raise cls._get_request_exception(e)
+        if response.status_code != 200:
+            raise Exception("invalid response status code: {}".format(response.status_code))
+        else:
+            return BeautifulSoup(response.content, 'html.parser')
 
     @classmethod
     def _handle_prop(cls, prop_type, prop_null, prop):
@@ -128,11 +156,19 @@ class BaseKnessetDataServiceObject(object):
     @classmethod
     def get_fields(cls):
         if not hasattr(cls, '_fields'):
-            cls._fields = {
-                attr_name: getattr(cls, attr_name) for attr_name in dir(cls) if
-                isinstance(getattr(cls, attr_name, None), BaseKnessetDataServiceField)
-                }
+            if hasattr(cls, "ORDERED_FIELDS"):
+                cls._fields = OrderedDict(cls.ORDERED_FIELDS)
+            else:
+                cls._fields = OrderedDict(((attr_name, getattr(cls, attr_name))
+                                           for attr_name in dir(cls)
+                                           if isinstance(getattr(cls, attr_name, None), BaseKnessetDataServiceField)))
         return cls._fields
+
+    @classmethod
+    def get_json_table_schema(cls):
+        return {"fields": [field.get_json_table_schema_field(fieldname)
+                           for fieldname, field
+                           in cls.get_fields().iteritems()]}
 
     @classmethod
     def get_field(cls, name=None):
@@ -151,11 +187,12 @@ class BaseKnessetDataServiceObject(object):
         field.set_value(self, attr_name, entry)
 
     def all_field_values(self):
-        return {k: getattr(self, k) for k, v in self.get_fields().iteritems()}
+        return OrderedDict(((k, getattr(self, k)) for k in self.get_fields()))
 
-    def __init__(self, entry):
+    def __init__(self, entry, proxies=None):
         self._session = requests.session()
         self._entry = entry
+        self._proxies = proxies if proxies else {}
         for attr_name, field in self.get_fields().iteritems():
             if not field.DEPENDS_ON_OBJ_FIELDS:
                 self._set_field_value(field, attr_name, entry)
@@ -205,47 +242,50 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
         }
 
     @classmethod
-    def _get_all_pages(cls, start_url, params=None):
+    def _get_all_pages(cls, start_url, params=None, proxies=None):
         """
         This method is not exposed externally because it might be dangerous
         it will iterate over all the pages, starting at start_url, following next url in each xml
         it's dangerous because there is no stop condition
         so be sure to use it only with some kind of filter in the url to limit number of results
         """
-        entries = []
         # Composing URL in advance since the link to the next page already have the params of the
         # first request and using `get_soup` with the params argument creates duplicate params
         next_url = ds_utils.compose_url_get(start_url, params)
         while next_url:
-            soup = cls._get_soup(next_url)
+            soup = cls._get_soup(next_url, proxies=proxies)
             for entry in soup.feed.find_all('entry'):
-                entries.append(cls(cls._parse_entry(entry)))
+                yield cls(cls._parse_entry(entry))
             next_link = soup.find('link', rel="next")
             next_url = next_link and next_link.attrs.get('href', None)
-        return entries
 
     @classmethod
-    def get(cls, id):
-        soup = cls._get_soup(cls._get_url_single(id))
+    def get(cls, id, proxies=None):
+        soup = cls._get_soup(cls._get_url_single(id), proxies=proxies)
         return cls(cls._parse_entry(soup.entry))
 
     @classmethod
-    def get_page(cls, order_by=None, results_per_page=50, page_num=1):
+    def get_page(cls, order_by=None, results_per_page=50, page_num=1, proxies=None):
         if not order_by and cls.DEFAULT_ORDER_BY_FIELD:
             order_by = (cls.DEFAULT_ORDER_BY_FIELD, 'desc')
         if order_by:
             order_by_field, order_by_dir = order_by
             order_by_field = cls.get_field(order_by_field).get_order_by_field()
             order_by = order_by_field, order_by_dir
-        soup = cls._get_soup(cls._get_url_page(order_by, results_per_page, page_num))
+        soup = cls._get_soup(cls._get_url_page(order_by, results_per_page, page_num), proxies=proxies)
         if len(soup.feed.find_all('link', attrs={'rel': 'next'})) > 0:
             raise Exception(
                 'looks like you asked for too much results per page, 50 results per page usually works')
         else:
-            return [cls(cls._parse_entry(entry)) for entry in soup.feed.find_all('entry')]
+            return (cls(cls._parse_entry(entry)) for entry in soup.feed.find_all('entry'))
+
+    @classmethod
+    def get_all(cls, proxies=None):
+        return cls._get_all_pages(cls._get_url_base(), proxies=proxies)
 
 
 class BaseKnessetDataServiceFunctionObject(BaseKnessetDataServiceObject):
+
     @classmethod
     def _get_url(cls, params):
         return Request('GET', cls._get_url_base(), params=params).prepare().url
@@ -264,6 +304,7 @@ class BaseKnessetDataServiceFunctionObject(BaseKnessetDataServiceObject):
         }
 
     @classmethod
-    def get(cls, params):
-        soup = cls._get_soup(cls._get_url(params))
-        return [cls(cls._parse_element(element)) for element in soup.find_all('element')]
+    def get(cls, params, proxies=None):
+        soup = cls._get_soup(cls._get_url(params), proxies=proxies)
+        return (cls(cls._parse_element(element), proxies=proxies)
+                for element in soup.find_all('element'))
