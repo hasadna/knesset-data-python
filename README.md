@@ -25,38 +25,16 @@ Check out the [Knesset kata contribution guide](https://github.com/hasadna/kness
 
 ### Project Administration
 
-The project should be published to pypi for every release
+Travis publishes to pypi automatically on every published release (or tag)
 
-#### Registering / authenticating with pypi
-
-* Before publishing to pypi you should have a user on [pypi](https://pypi.python.org/pypi)
-* Create ~/.pypirc file and paste the following (modify username / password):
-```
-[distutils]
-index-servers=pypi
-
-[pypi]
-repository = https://upload.pypi.org/legacy/
-username = <username>
-password = <password>
-```
-* `chmod 400 ~/.pypirc`
-* Ask an authorized user to authorize you to publish to pypi.
-
-#### Publishing a release to pypi
+#### Publishing a release
 
 * merge some pull requests
 * create or update the latest draft release (https://github.com/hasadna/knesset-data-python/releases)
   * update the release notes, save draft
-* edit [/python/setup.py](https://github.com/hasadna/knesset-data-python/edit/master/setup.py)
-  * update the version to match the version in the GitHub draft release
-* make sure you are publishing latest master
-  * `$ cd knesset-data-python`
-  * `knesset-data-python$ git checkout master`
-  * `knesset-data-python$ git pull hasadna master`
-* publish the version to pypi
-  * `knesset-data-python$ ./setup.py sdist bdist_wheel upload`
-* publish the release on GitHub
+* test / update the release
+* when ready, publish the release on GitHub
+* travis will automatically publish to pypi
 
 #### Updating Open Knesset dependency
 
@@ -67,3 +45,14 @@ In Open Knesset repository -
 * edit [Open-Knesset/requirements.txt](https://github.com/hasadna/Open-Knesset/blob/master/requirements.txt)
 * `knesset-data==1.2.0`
 * test and open a pull request in Open Knesset
+
+#### More details regarding travis publishing to pypi
+
+The .travis.yml file contains encrypted variables, you add them using the travis cli client:
+
+```
+$ travis encrypt TRAVIS_PYPI_USER=<YOUR_PYPI_USER> --add env.global
+$ travis encrypt TRAVIS_PYPI_PASS=<YOUR_PYPI_PASSWORD> --add env.global
+```
+
+Check ouy .travis/after_success.sh to see how the publishing to pypi works
