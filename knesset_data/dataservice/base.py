@@ -129,6 +129,9 @@ class BaseKnessetDataServiceObject(object):
         try:
             proxies = proxies if proxies else {}
             response = requests.get(url, params=params, timeout=timeout, proxies=proxies)
+        except requests.exceptions.InvalidSchema, e:
+            # missing dependencies for SOCKS support
+            raise e
         except requests.RequestException, e:
             raise cls._get_request_exception(e)
         if response.status_code != 200:
