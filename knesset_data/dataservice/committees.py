@@ -46,8 +46,6 @@ class Committee(BaseKnessetDataServiceCollectionObject):
 
 
 class CommitteeMeeting(BaseKnessetDataServiceFunctionObject):
-    SERVICE_NAME = "committees"
-    METHOD_NAME = "CommitteeAgendaSearch"
 
     ORDERED_FIELDS = [
         (
@@ -101,6 +99,10 @@ class CommitteeMeeting(BaseKnessetDataServiceFunctionObject):
     ]
 
     @classmethod
+    def _get_url_base(cls):
+        return "http://online.knesset.gov.il/WsinternetSps/KnessetDataService/CommitteeScheduleData.svc/CommitteeAgendaSearch"
+
+    @classmethod
     def get(cls, committee_id, from_date, to_date=None, proxies=None):
         """
         # example usage:
@@ -116,4 +118,4 @@ class CommitteeMeeting(BaseKnessetDataServiceFunctionObject):
         }
         if to_date:
             params["ToDate"] = "'%sT00:00:00'" % to_date.strftime('%Y-%m-%d')
-            return super(CommitteeMeeting, cls).get(params, proxies=proxies)
+        return super(CommitteeMeeting, cls).get(params, proxies=proxies)
