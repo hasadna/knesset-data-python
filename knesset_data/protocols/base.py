@@ -6,6 +6,10 @@ import os
 from utils import antiword, antixml
 from cached_property import cached_property
 import io, requests
+import logging
+
+
+logger = logging.getLogger("knesset_data.protocols.base")
 
 
 class BaseProtocolFile(object):
@@ -17,10 +21,15 @@ class BaseProtocolFile(object):
         self._cleanup = []
         self._proxies = proxies if proxies else {}
 
+    def _get_url_timeout(self):
+        # 10 seconds
+        return 10
+
     def _get_file_from_url(self, url):
         # allows to modify the url opening in extending classes
         # when doing so, remember to use the proxies to route traffic through the given socks proxies
-        return io.BytesIO(requests.get(url, proxies=self._proxies).content)
+        logger.debug("BaseProtocolFile:_get_file_from_url: {}".format(url))
+        return io.BytesIO(requests.get(url, proxies=self._proxies, timeout=self._get_url_timeout()).content)
 
     @cached_property
     def file(self):
