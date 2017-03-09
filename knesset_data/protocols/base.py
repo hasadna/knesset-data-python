@@ -29,7 +29,14 @@ class BaseProtocolFile(object):
         # allows to modify the url opening in extending classes
         # when doing so, remember to use the proxies to route traffic through the given socks proxies
         logger.debug("BaseProtocolFile:_get_file_from_url: {}".format(url))
-        return io.BytesIO(requests.get(url, proxies=self._proxies, timeout=self._get_url_timeout()).content)
+        try:
+            res_content = requests.get(url, proxies=self._proxies, timeout=self._get_url_timeout()).content
+        except Exception, e:
+            if hasattr(e, "request"):
+                raise Exception("{message}, {url}".format(url=e.request.url, message=e.message))
+            else:
+                raise e
+        return io.BytesIO(res_content)
 
     @cached_property
     def file(self):

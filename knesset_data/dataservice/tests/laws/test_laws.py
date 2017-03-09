@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-from unittest import TestCase
+from unittest import TestCase, skipIf
 from knesset_data.dataservice.laws import PrivateLaw, PrivateLawMk
 from datetime import datetime
+from knesset_data.dataservice.constants import SERVICE_URLS
 
 
 class TestLaws(TestCase):
 
+    @skipIf("laws" not in SERVICE_URLS, "laws service is not working, see comments in dataservices.constants")
     def test_law(self):
         law = PrivateLaw.get(318)
         self.assertEqual(law.id, 318)
@@ -22,6 +24,7 @@ class TestLaws(TestCase):
         self.assertEqual(law.guess_link_url(), 'http://knesset.gov.il/privatelaw/data/15/1044.rtf')
         self.assertEqual(PrivateLawMk.get_by_plaw_id(318).next().mk_id, 119)
 
+    @skipIf("laws" not in SERVICE_URLS, "laws service is not working, see comments in dataservices.constants")
     def test_law_mks(self):
         law_mks = list(PrivateLawMk.get_by_plaw_id(321))
         self.assertEqual(len(law_mks), 4)

@@ -11,3 +11,6 @@ class KnessetDataServiceRequestException(RequestException):
         self.url = original_request.url if original_request else ""
         self.message = original_request_exception.message
         super(KnessetDataServiceRequestException, self).__init__(response=original_request_exception.response, request=original_request_exception.request, *args, **kwargs)
+
+    def __str__(self):
+        return "{}, {}".format(self.message, self.url)

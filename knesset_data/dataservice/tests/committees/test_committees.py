@@ -1,9 +1,9 @@
 import unittest
-
-
 from knesset_data.dataservice.committees import Committee
+from knesset_data.dataservice.constants import SERVICE_URLS
 
 
+@unittest.skipIf("committees" not in SERVICE_URLS, "committees service is not working, see comments in dataservice.constants")
 class TestCommittees(unittest.TestCase):
 
     def test_committee(self):
