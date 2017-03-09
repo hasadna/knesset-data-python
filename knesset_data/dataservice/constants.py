@@ -4,6 +4,7 @@
 SERVICE_URLS = {
     # following services are not working at the moment due to knesse problems
     # see https://github.com/hasadna/knesset-data/issues/124
+    # once they are fixed - need to uncomment and re-run the tests to make sure it works..
     # 'laws': "http://knesset.gov.il/Odata_old/LawsData.svc",
     # 'members': "http://knesset.gov.il/Odata_old/KnessetMembersData.svc",
     # 'committees': "http://knesset.gov.il/Odata_old/CommitteeScheduleData.svc",
