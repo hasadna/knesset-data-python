@@ -1,11 +1,11 @@
 import os
-from octohub.connection import Connection as OctohubConnection
 import json
 
 
 def github_add_or_update_issue(title, msg, gist_files=None):
     token = os.environ.get('KNESSET_DATA_GITHUB_TOKEN', None)
     if token:
+        from octohub.connection import Connection as OctohubConnection
         github = OctohubConnection(token)
         if gist_files:
             res = github.send('POST', '/gists', data=json.dumps({
