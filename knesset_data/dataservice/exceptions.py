@@ -14,3 +14,13 @@ class KnessetDataServiceRequestException(RequestException):
 
     def __str__(self):
         return "{}, {}".format(self.message, self.url)
+
+
+class KnessetDataServiceObjectException(Exception):
+
+    def __init__(self, cls, entry, original_exception, *args, **kwargs):
+        self.dataservice_class = cls
+        self.unparsed_entry = entry
+        self.original_exception = original_exception
+        self.message = self.original_exception.message
+        super(KnessetDataServiceObjectException, self).__init__(*args, **kwargs)

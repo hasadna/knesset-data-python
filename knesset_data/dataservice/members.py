@@ -8,7 +8,7 @@ logger = logging.getLogger('knesset_data.dataservice.members')
 class Member(BaseKnessetDataServiceCollectionObject):
     SERVICE_NAME = "members"
     METHOD_NAME = "View_mk_individual"
-    DEFAULT_ORDER_BY_FIELD = "mk_individual_id"
+    DEFAULT_ORDER_BY_FIELD = "id"
 
     ORDERED_FIELDS = [
         ("id", KnessetDataServiceSimpleField('mk_individual_id', "integer")),
