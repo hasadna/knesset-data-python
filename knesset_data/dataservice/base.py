@@ -6,7 +6,7 @@ import logging
 from knesset_data.dataservice.constants import SERVICE_URLS
 import knesset_data.dataservice.utils as ds_utils
 from knesset_data.utils.github import github_add_or_update_issue
-from knesset_data.dataservice.exceptions import KnessetDataServiceRequestException
+from knesset_data.dataservice.exceptions import KnessetDataServiceRequestException, KnessetDataServiceObjectException
 from copy import deepcopy
 from collections import OrderedDict
 
@@ -225,12 +225,18 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
         return url
 
     @classmethod
-    def _parse_entry(cls, entry):
-        entry_id = entry.id.string
-        entry_links = []
-        for link in entry.find_all('link'):
-            entry_links.append({'href': link.attrs['href'], 'rel': link.attrs['rel'][0],
-                                'title': link.attrs['title']})
+    def _parse_entry_id(cls, entry):
+        return entry.id.string
+
+    @classmethod
+    def _parse_entry_links(cls, entry):
+        return [{"href": link.attrs["href"],
+                 "rel": link.attrs["rel"][0],
+                 "title": link.attrs["title"]}
+                for link in entry.find_all('link')]
+
+    @classmethod
+    def _parse_entry_data(cls, entry):
         data = {}
         for prop in entry.content.find('m:properties').children:
             if isinstance(prop, Tag):
@@ -238,19 +244,37 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
                 prop_type = prop.attrs.get('m:type', '')
                 prop_null = (prop.attrs.get('m:null', '') == 'true')
                 data[prop_name] = cls._handle_prop(prop_type, prop_null, prop)
+        return data
+
+    @classmethod
+    def _parse_entry(cls, entry):
         return {
-            'id': entry_id,
-            'links': entry_links,
-            'data': data,
+            'id': cls._parse_entry_id(entry),
+            'links': cls._parse_entry_links(entry),
+            'data': cls._parse_entry_data(entry),
         }
 
     @classmethod
-    def _get_all_pages(cls, start_url, params=None, proxies=None):
+    def _get_instance_from_entry(cls, entry, skip_exceptions=False):
+        try:
+            return cls(cls._parse_entry(entry))
+        except Exception, e:
+            if skip_exceptions:
+                return KnessetDataServiceObjectException(cls, e, entry)
+            else:
+                raise e
+
+    @classmethod
+    def _get_all_pages(cls, start_url, params=None, proxies=None, skip_exceptions=False):
         """
         This method is not exposed externally because it might be dangerous
         it will iterate over all the pages, starting at start_url, following next url in each xml
         it's dangerous because there is no stop condition
         so be sure to use it only with some kind of filter in the url to limit number of results
+        this function returns a generator yielding dataservice object instances
+        in case of exception in getting the http response - it will raise the exception directly
+        in case of exception in parsing the entry, behavior depends on skip_exceptions param
+        if False - will raise exception directly, otherwise - yields an KnessetDataServiceObjectException instance
         """
         # Composing URL in advance since the link to the next page already have the params of the
         # first request and using `get_soup` with the params argument creates duplicate params
@@ -258,17 +282,28 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
         while next_url:
             soup = cls._get_soup(next_url, proxies=proxies)
             for entry in soup.feed.find_all('entry'):
-                yield cls(cls._parse_entry(entry))
+                yield cls._get_instance_from_entry(entry, skip_exceptions=skip_exceptions)
             next_link = soup.find('link', rel="next")
             next_url = next_link and next_link.attrs.get('href', None)
 
     @classmethod
     def get(cls, id, proxies=None):
+        """
+        gets a single dataservice object by id
+        raises exception on any failure to fetch or parse the object
+        """
         soup = cls._get_soup(cls._get_url_single(id), proxies=proxies)
-        return cls(cls._parse_entry(soup.entry))
+        return cls._get_instance_from_entry(soup.entry, skip_exceptions=False)
 
     @classmethod
-    def get_page(cls, order_by=None, results_per_page=50, page_num=1, proxies=None):
+    def get_page(cls, order_by=None, results_per_page=50, page_num=1, proxies=None, skip_exceptions=False):
+        """
+        gets a page of results
+        returns a generator yielding object instances
+        in case of exception in getting the http response - will raise the exception directly
+        in case of exception getting the object, behavior depends on skip_exceptions param
+        if False - will raise exception, otherwise yields KnessetDataServiceObjectException instance
+        """
         if not order_by and cls.DEFAULT_ORDER_BY_FIELD:
             order_by = (cls.DEFAULT_ORDER_BY_FIELD, 'desc')
         if order_by:
@@ -277,14 +312,20 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
             order_by = order_by_field, order_by_dir
         soup = cls._get_soup(cls._get_url_page(order_by, results_per_page, page_num), proxies=proxies)
         if len(soup.feed.find_all('link', attrs={'rel': 'next'})) > 0:
-            raise Exception(
-                'looks like you asked for too much results per page, 50 results per page usually works')
+            raise Exception('looks like you asked for too much results per page, 50 results per page usually works')
         else:
-            return (cls(cls._parse_entry(entry)) for entry in soup.feed.find_all('entry'))
+            return (cls._get_instance_from_entry(entry, skip_exceptions=skip_exceptions) for entry in soup.feed.find_all('entry'))
 
     @classmethod
-    def get_all(cls, proxies=None):
-        return cls._get_all_pages(cls._get_url_base(), proxies=proxies)
+    def get_all(cls, proxies=None, skip_exceptions=False):
+        """
+        use with caution - it will get all pages without a stop condition
+        returns a generator yielding object instances
+        in case of exception in getting the http response - will raise the exception directly
+        in case of exception getting the object, behavior depends on skip_exceptions param
+        if False - will raise exception, otherwise yields KnessetDataServiceObjectException instance
+        """
+        return cls._get_all_pages(cls._get_url_base(), proxies=proxies, skip_exceptions=skip_exceptions)
 
 
 class BaseKnessetDataServiceFunctionObject(BaseKnessetDataServiceObject):

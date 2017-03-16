@@ -1,7 +1,9 @@
 import unittest
 from datetime import datetime
+
 from knesset_data.dataservice.committees import Committee, CommitteeMeeting
-from knesset_data.dataservice.exceptions import KnessetDataServiceRequestException
+from knesset_data.dataservice.exceptions import KnessetDataServiceRequestException, KnessetDataServiceObjectException
+from knesset_data.dataservice.mocks import MockMember
 from knesset_data.utils.testutils import data_dependant_test
 
 
@@ -16,6 +18,28 @@ class CommitteeMeetingWithVeryShortTimeoutAndInvalidService(CommitteeMeeting):
 
 
 class TestDataServiceRequestExceptions(unittest.TestCase):
+
+    def test_member_exception(self):
+        # get_page - raises an exception as soon as it's encountered
+        exception = None
+        try:
+            list(MockMember.get_page())
+        except Exception, e:
+            exception = e
+        self.assertEqual(exception.message, "member with exception on init")
+        # get - raises an exception as soon as it's encountered
+        exception = None
+        try:
+            MockMember.get(215)
+        except Exception, e:
+            exception = e
+        self.assertEqual(exception.message, "member with exception on get")
+
+    def test_member_skipped_exceptions(self):
+        # get_page with skip_exceptions - yields exception objects on error
+        self.assertEqual([o.message if isinstance(o, KnessetDataServiceObjectException) else o.id
+                          for o in MockMember.get_page(skip_exceptions=True)],
+                         [200, 201, 202, 'member with exception on init', 'member with exception on parse'])
 
     @data_dependant_test()
     def test_committee(self):
