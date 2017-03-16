@@ -41,6 +41,8 @@ class MockMember(Member):
         if "({})".format(cls.EXCEPTION_ON_GET_MEMBER_ID) in url:
             raise Exception("member with exception on get")
         else:
+            def find(soup_instance, name, **kwargs):
+                return None
             def find_all(feed_instance, name, attrs=None):
                 if name == "link":
                     return []
@@ -48,4 +50,5 @@ class MockMember(Member):
                     return [i for i in cls.SOUP_MEMBER_IDS]
             return type("MockSoup", (object,),
                         {"feed": type("MockFeed", (object,),
-                                      {"find_all": find_all})()})
+                                      {"find_all": find_all})(),
+                         "find": find})()
