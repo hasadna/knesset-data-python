@@ -260,7 +260,7 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
             return cls(cls._parse_entry(entry))
         except Exception, e:
             if skip_exceptions:
-                return KnessetDataServiceObjectException(cls, entry, e)
+                return KnessetDataServiceObjectException(cls, e, entry)
             else:
                 raise e
 

@@ -18,7 +18,7 @@ class KnessetDataServiceRequestException(RequestException):
 
 class KnessetDataServiceObjectException(Exception):
 
-    def __init__(self, cls, entry, original_exception, *args, **kwargs):
+    def __init__(self, cls, original_exception, entry=None, *args, **kwargs):
         self.dataservice_class = cls
         self.unparsed_entry = entry
         self.original_exception = original_exception
