@@ -1,9 +1,12 @@
 import urllib2
 import re
 
+from logging import getLogger
+
+logger = getLogger(__name__)
+
 
 class HtmlVote(object):
-
     def __init__(self, page):
         self.page = page
 
@@ -19,21 +22,26 @@ class HtmlVote(object):
         match = pattern.split(self.page)
         for i in match:
             vote_result_code = ""
-            if(re.match("""_R1""", i)):
+            if re.match("""_R1""", i):
                 vote_result_code = "voted for"
-            if(re.match("""_R2""", i)):
+            if re.match("""_R2""", i):
                 vote_result_code = "voted against"
-            if(re.match("""_R3""", i)):
+            if re.match("""_R3""", i):
                 vote_result_code = "abstain"
-            if(re.match("""_R4""", i)):
+            if re.match("""_R4""", i):
                 vote_result_code = "did not vote"
-            if(vote_result_code != ""):
-                member_id = re.search("""mk_individual_id_t=(\d+)""",i).group(1)
-                results.append((member_id, vote_result_code))
+            if vote_result_code != "":
+                try:
+                    member_id = re.search("""MKID=(\d+)""", i).group(1)
+                    results.append((member_id, vote_result_code))
+                except AttributeError as e:
+                    logger.exception('Failed to find html vote for specific mk %s' % i)
+                    continue
         return results
 
     @classmethod
     def get_from_vote_id(cls, vote_id):
-        url = 'http://www.knesset.gov.il/vote/heb/Vote_Res_Map.asp?vote_id_t=%s'%vote_id
+        url = 'http://www.knesset.gov.il/vote/heb/Vote_Res_Map.asp?vote_id_t=%s' % vote_id
+        logger.info('Trying to scrape member votes from %s', url)
         page = urllib2.urlopen(url).read()
         return cls(page)
