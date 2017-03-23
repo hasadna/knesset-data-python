@@ -8,6 +8,7 @@ from logging import getLogger
 from itertools import chain
 from knesset_data.exceptions import KnessetDataObjectException
 from knesset_data.protocols.plenum import PlenumProtocolFile
+from knesset_data.utils.reblaze import is_reblaze_content
 
 logger = getLogger(__name__)
 
@@ -31,12 +32,9 @@ class PlenumMeetings(object):
             # the encoding of this page used to be utf-8 but looks like they reverted back to iso-8859-8
             encoding = 'iso_8859_8'
         logger.info('getting index page html from %s' % url)
-        try:
-            return unicode(self._read_index_page(url), encoding)
-        except:
-            logger.exception(u'could not fetch committees_index_page for url %s' % url)
-            # send_chat_notification(__name__, "could not fetch committees index page", {'url': url})
-            return ''
+        content = unicode(self._read_index_page(url), encoding)
+        is_reblaze_content(content, raise_exception=True)
+        return content
 
     def _read_index_page(self, url):
         return urllib2.urlopen(url).read()
