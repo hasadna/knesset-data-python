@@ -73,6 +73,7 @@ class PlenumProtocolFile(BaseProtocolFile):
     def datetime(self):
         day, month_name_heb, year = self.date_string_heb
         hours, minutes = self.time_string
+        month_name_heb = {"מרס": "מרץ"}.get(month_name_heb, month_name_heb)
         months = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר']
         month = months.index(month_name_heb)+1
         return datetime(int(year), month, int(day), int(hours), int(minutes))

@@ -20,7 +20,33 @@ def plenum_protocol_assertions(test_case, protocol):
 
 
 class TestPlenumProtocolFile(unittest.TestCase):
+    maxDiff = None
 
     def test_from_file(self):
         with PlenumProtocolFile.get_from_filename(os.path.join(os.path.dirname(__file__), '20_ptm_318579.doc')) as protocol:
             plenum_protocol_assertions(self, protocol)
+
+    def _get_protocol_data(self, protocol, keys):
+        res = {}
+        for k in keys:
+            try:
+                res[k] = getattr(protocol, k)
+            except Exception, e:
+                res[k] = e.message
+        return res
+
+    def test_from_data(self):
+        data = open(os.path.join(os.path.dirname(__file__), '20_ptm_381742.doc')).read()
+        with PlenumProtocolFile.get_from_data(data) as protocol:
+            expected_data = {'knesset_num_heb': 'עשרים',
+                             'meeting_num_heb': 'מאתיים-ותשע-עשרה',
+                             "booklet_num_heb": None,
+                             'booklet_meeting_num_heb': 'רי"ט',
+                             'date_string_heb': ('21', 'מרס', '2017'),
+                             'time_string': ('16', '00'),
+                             'datetime': datetime(2017, 3, 21, 16, 0),
+                             "knesset_num": 20,
+                             'booklet_num': "'NoneType' object has no attribute 'decode'",
+                             "booklet_meeting_num": 219}
+            actual_data = self._get_protocol_data(protocol, expected_data)
+            self.assertEqual(actual_data, expected_data)
