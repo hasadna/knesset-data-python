@@ -3,32 +3,7 @@ from ..plenum import PlenumMeetings, PlenumMeeting
 import os
 from knesset_data.exceptions import KnessetDataObjectException
 from knesset_data.protocols.exceptions import AntiwordException
-
-
-class MockPlenumMeetings(PlenumMeetings):
-
-    def _get_plenum_meeting(self, *args, **kwargs):
-        return MockPlenumMeeting(*args, **kwargs)
-
-    def _read_index_page(self, url):
-        if url == self.FULL_URL:
-            return open(os.path.join(os.path.dirname(__file__), "plenum_display_full.asp")).read()
-        elif url == self.PLENUM_URL:
-            return open(os.path.join(os.path.dirname(__file__), "plenum_queue.aspx")).read()
-        else:
-            raise Exception("unknown url {}".format(url))
-
-    def _read_file(self, url):
-        if url == "http://www.knesset.gov.il/plenum/data/20_ptm_307658.doc":
-            return "PROTOCOL CONTENT"
-        elif url == "http://www.knesset.gov.il/plenum/data/20_ptm_307568.doc":
-            raise Exception("fake exception")
-        else:
-            return None
-
-
-class MockPlenumMeeting(PlenumMeeting):
-    pass
+from knesset_data.html_scrapers.mocks import MockPlenumMeetings
 
 
 class PlenumTestCase(TestCase):
