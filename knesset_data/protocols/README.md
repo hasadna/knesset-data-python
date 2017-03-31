@@ -7,3 +7,7 @@
 ## Committee Meeting
 * Parses the text, divides into parts and speakers, identify attending members.
 * See [knesset_data/protocols/tests/test_committee.py](/python/knesset_data/protocols/tests/test_committee.py) for usage example.
+
+### attending members logic
+* must get a list of member names to search for
+* there is a regular expression which tries to find the member names in the protocol text
