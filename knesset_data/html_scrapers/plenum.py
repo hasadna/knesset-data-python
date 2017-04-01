@@ -9,6 +9,7 @@ from itertools import chain
 from knesset_data.exceptions import KnessetDataObjectException
 from knesset_data.protocols.plenum import PlenumProtocolFile
 from knesset_data.utils.reblaze import is_reblaze_content
+from datetime import date
 
 logger = getLogger(__name__)
 
@@ -72,15 +73,15 @@ class PlenumMeetings(object):
                     year = int(m.group(3))
                     url = url.replace('/heb/..', '')
                     logger.debug(url)
-                    yield self._get_plenum_meeting(url, self._read_file(url.replace('/heb/..', '')), year, mon, day)
+                    yield self._get_plenum_meeting(url, self._read_file(url.replace('/heb/..', '')), date(year, mon, day))
             except Exception, e:
                 if skip_exceptions:
                     yield KnessetDataObjectException(e)
                 else:
                     raise e
 
-    def _get_plenum_meeting(self, url, protocol, year, month, day):
-        return PlenumMeeting(url, protocol, year, month, day)
+    def _get_plenum_meeting(self, url, protocol, date):
+        return PlenumMeeting(url, protocol, date)
 
     def download(self, skip_exceptions=False, sorted=False):
         res = chain(*[self._download_latest(full, skip_exceptions) for full in [True, False]])
@@ -88,21 +89,17 @@ class PlenumMeetings(object):
 
     @classmethod
     def sort(cls, plenum_meetings, descending=True):
-        return sorted(plenum_meetings, key=lambda o: (o.year, o.month, o.day) if not isinstance(o, Exception) else None, reverse=descending)
+        return sorted(plenum_meetings, key=lambda o: o.date.strftime("%Y-%m-%d") if not isinstance(o, Exception) else None, reverse=descending)
 
     @classmethod
     def get_json_table_schema(cls):
         return {"fields": [{"name": "url", "type": "string", "description": "url to the meeting protocol"},
-                           {"name": "year", "type": "integer"},
-                           {"name": "month", "type": "integer"},
-                           {"name": "day", "type": "integer"}]}
+                           {"name": "date", "type": "date", "description": "date of the meeting (does not include time part)"}]}
 
 
 class PlenumMeeting(object):
 
-    def __init__(self, url, protocol, year, month, day):
+    def __init__(self, url, protocol, date):
         self.url = url
         self.protocol = PlenumProtocolFile.get_from_data(protocol)
-        self.year = year
-        self.month = month
-        self.day = day
+        self.date = date

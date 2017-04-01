@@ -4,6 +4,7 @@ import os
 from knesset_data.exceptions import KnessetDataObjectException
 from knesset_data.protocols.exceptions import AntiwordException
 from knesset_data.html_scrapers.mocks import MockPlenumMeetings
+from datetime import date
 
 
 class PlenumTestCase(TestCase):
@@ -12,7 +13,7 @@ class PlenumTestCase(TestCase):
         if isinstance(meeting, Exception):
             return meeting.message
         else:
-            return "{}/{}/{}".format(meeting.day, meeting.month, meeting.year)
+            return meeting.date.strftime("%d/%m/%Y")
 
     def _meeting_dict(self, meeting):
         if isinstance(meeting, Exception):
@@ -24,9 +25,7 @@ class PlenumTestCase(TestCase):
                 except Exception, e:
                     protocol = "EXCEPTION"
             return {
-                "day": meeting.day,
-                "month": meeting.month,
-                "year": meeting.year,
+                "date": meeting.date,
                 "url": meeting.url,
                 "protocol": protocol
             }
@@ -39,12 +38,12 @@ class PlenumTestCase(TestCase):
     def test_fetch_all_sorted(self):
         self.assertEqual([self._meeting_str(o)
                           for o in self._download(skip_exceptions=True, sorted=True)],
-                         ['21/3/2017', '20/3/2017', '15/3/2017', '14/3/2017', '8/3/2017', '7/3/2017', '6/3/2017',
-                          '1/3/2017', '28/2/2017', '27/2/2017', '22/2/2017', '21/2/2017', '20/2/2017', '15/2/2017',
-                          '14/2/2017', '13/2/2017', '8/2/2017', '7/2/2017', '6/2/2017', '1/2/2017', '20/5/2015',
-                          '19/5/2015', '13/5/2015', '12/5/2015', '11/5/2015', '6/5/2015', '5/5/2015', '4/5/2015',
-                          '20/4/2015', '31/3/2015', '16/2/2015', '21/1/2015', '5/1/2015', '29/12/2014', '10/12/2014',
-                          '9/12/2014', '8/12/2014', '3/12/2014', '2/12/2014', '1/12/2014', '26/11/2014', 'fake exception'])
+                         ['21/03/2017', '20/03/2017', '15/03/2017', '14/03/2017', '08/03/2017', '07/03/2017', '06/03/2017',
+                          '01/03/2017', '28/02/2017', '27/02/2017', '22/02/2017', '21/02/2017', '20/02/2017', '15/02/2017',
+                          '14/02/2017', '13/02/2017', '08/02/2017', '07/02/2017', '06/02/2017', '01/02/2017', '20/05/2015',
+                          '19/05/2015', '13/05/2015', '12/05/2015', '11/05/2015', '06/05/2015', '05/05/2015', '04/05/2015',
+                          '20/04/2015', '31/03/2015', '16/02/2015', '21/01/2015', '05/01/2015', '29/12/2014', '10/12/2014',
+                          '09/12/2014', '08/12/2014', '03/12/2014', '02/12/2014', '01/12/2014', '26/11/2014', 'fake exception'])
 
     def test_plenum_protocol_object(self):
         with self._download().next().protocol as protocol:
@@ -53,9 +52,9 @@ class PlenumTestCase(TestCase):
     def test_as_generator(self):
         res = self._download(skip_exceptions=True)
 
-        self.assertEqual(self._meeting_dict(res.next()), {"day": 20, "month": 5, "year": 2015, "protocol": '\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1\x00\x00\x00\x00\x00\x00\x00',
+        self.assertEqual(self._meeting_dict(res.next()), {"date": date(2015, 5, 20), "protocol": '\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1\x00\x00\x00\x00\x00\x00\x00',
                                            "url": "http://www.knesset.gov.il/plenum/data/20_ptm_307658.doc"})
-        self.assertEqual(self._meeting_dict(res.next()), {"day": 19, "month": 5, "year": 2015, "protocol": "EXCEPTION",
+        self.assertEqual(self._meeting_dict(res.next()), {"date": date(2015, 5, 19), "protocol": "EXCEPTION",
                                            "url": "http://www.knesset.gov.il/plenum/data/20_ptm_307604.doc"})
         # yields exceptions (in case skip_exceptions is True)
         self.assertIsInstance(res.next(), KnessetDataObjectException)
@@ -63,9 +62,9 @@ class PlenumTestCase(TestCase):
         self.assertIsInstance(res.next(), PlenumMeeting)
         # supports sorting (not by default because it prevents streaming)
         self.assertEqual([self._meeting_str(o) for o in PlenumMeetings.sort(res)],
-                         ['21/3/2017', '20/3/2017', '15/3/2017', '14/3/2017', '8/3/2017', '7/3/2017', '6/3/2017',
-                          '1/3/2017', '28/2/2017', '27/2/2017', '22/2/2017', '21/2/2017', '20/2/2017', '15/2/2017',
-                          '14/2/2017', '13/2/2017', '8/2/2017', '7/2/2017', '6/2/2017', '1/2/2017', '12/5/2015',
-                          '11/5/2015', '6/5/2015', '5/5/2015', '4/5/2015', '20/4/2015', '31/3/2015', '16/2/2015',
-                          '21/1/2015', '5/1/2015', '29/12/2014', '10/12/2014', '9/12/2014', '8/12/2014', '3/12/2014',
-                          '2/12/2014', '1/12/2014', '26/11/2014'])
+                         ['21/03/2017', '20/03/2017', '15/03/2017', '14/03/2017', '08/03/2017', '07/03/2017', '06/03/2017',
+                          '01/03/2017', '28/02/2017', '27/02/2017', '22/02/2017', '21/02/2017', '20/02/2017', '15/02/2017',
+                          '14/02/2017', '13/02/2017', '08/02/2017', '07/02/2017', '06/02/2017', '01/02/2017', '12/05/2015',
+                          '11/05/2015', '06/05/2015', '05/05/2015', '04/05/2015', '20/04/2015', '31/03/2015', '16/02/2015',
+                          '21/01/2015', '05/01/2015', '29/12/2014', '10/12/2014', '09/12/2014', '08/12/2014', '03/12/2014',
+                          '02/12/2014', '01/12/2014', '26/11/2014'])
