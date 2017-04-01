@@ -86,9 +86,16 @@ class PlenumMeetings(object):
         res = chain(*[self._download_latest(full, skip_exceptions) for full in [True, False]])
         return res if not sorted else self.sort(res)
 
-    @staticmethod
-    def sort(plenum_meetings, descending=True):
+    @classmethod
+    def sort(cls, plenum_meetings, descending=True):
         return sorted(plenum_meetings, key=lambda o: (o.year, o.month, o.day) if not isinstance(o, Exception) else None, reverse=descending)
+
+    @classmethod
+    def get_json_table_schema(cls):
+        return {"fields": [{"name": "url", "type": "string", "description": "url to the meeting protocol"},
+                           {"name": "year", "type": "integer"},
+                           {"name": "month", "type": "integer"},
+                           {"name": "day", "type": "integer"}]}
 
 
 class PlenumMeeting(object):

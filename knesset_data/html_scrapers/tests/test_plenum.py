@@ -19,7 +19,10 @@ class PlenumTestCase(TestCase):
             return {"exception": meeting.message}
         else:
             with meeting.protocol as p:
-                protocol = p.file_contents
+                try:
+                    protocol = p.file_contents[:15]
+                except Exception, e:
+                    protocol = "EXCEPTION"
             return {
                 "day": meeting.day,
                 "month": meeting.month,
@@ -44,15 +47,15 @@ class PlenumTestCase(TestCase):
                           '9/12/2014', '8/12/2014', '3/12/2014', '2/12/2014', '1/12/2014', '26/11/2014', 'fake exception'])
 
     def test_plenum_protocol_object(self):
-        plenum_meeting = self._download().next()
-        with plenum_meeting.protocol as protocol:
-            self.assertRaises(AntiwordException, lambda: protocol.header_text)
+        with self._download().next().protocol as protocol:
+            self.assertEqual(protocol.knesset_num, 20)
 
     def test_as_generator(self):
         res = self._download(skip_exceptions=True)
-        self.assertEqual(self._meeting_dict(res.next()), {"day": 20, "month": 5, "year": 2015, "protocol": "PROTOCOL CONTENT",
+
+        self.assertEqual(self._meeting_dict(res.next()), {"day": 20, "month": 5, "year": 2015, "protocol": '\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1\x00\x00\x00\x00\x00\x00\x00',
                                            "url": "http://www.knesset.gov.il/plenum/data/20_ptm_307658.doc"})
-        self.assertEqual(self._meeting_dict(res.next()), {"day": 19, "month": 5, "year": 2015, "protocol": None,
+        self.assertEqual(self._meeting_dict(res.next()), {"day": 19, "month": 5, "year": 2015, "protocol": "EXCEPTION",
                                            "url": "http://www.knesset.gov.il/plenum/data/20_ptm_307604.doc"})
         # yields exceptions (in case skip_exceptions is True)
         self.assertIsInstance(res.next(), KnessetDataObjectException)
