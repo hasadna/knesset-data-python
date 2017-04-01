@@ -4,6 +4,7 @@ from knesset_data.dataservice.constants import SERVICE_URLS
 from knesset_data.utils.testutils import data_dependant_test
 
 
+@data_dependant_test()
 class TestMembers(unittest.TestCase):
 
     def test_member(self):
