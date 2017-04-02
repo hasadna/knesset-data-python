@@ -36,3 +36,5 @@ nosetests.xml
 .idea
 /VERSION.txt
 /.travis/.env
+*.ipynb
+.ipynb*
