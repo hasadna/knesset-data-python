@@ -79,6 +79,7 @@ class MockCommitteeMeeting(CommitteeMeeting):
         data = {field._knesset_field_name.lower(): None for name, field in cls.ORDERED_FIELDS if hasattr(field, "_knesset_field_name")}
         data.update({"url": "mock url {}".format(element),
                      "committee_agenda_date": datetime.datetime(2013, 5, element, 16, 33),
+                     "StartDateTime".lower(): datetime.datetime(2013, 5, element, 16, 44),
                      "Committee_Agenda_id".lower(): element})
         return {"data": data}
 
