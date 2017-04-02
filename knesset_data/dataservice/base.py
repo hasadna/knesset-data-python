@@ -16,6 +16,7 @@ logger=logging.getLogger(__name__)
 
 class BaseKnessetDataServiceField(object):
     DEPENDS_ON_OBJ_FIELDS = False
+    SCHEMA_SERIALIZABLE = True
 
     def __init__(self, json_table_schema=None, description=None, title=None):
         if not json_table_schema:
@@ -88,6 +89,7 @@ class KnessetDataServiceDateTimeField(BaseKnessetDataServiceField):
 
 class KnessetDataServiceLambdaField(BaseKnessetDataServiceField):
     DEPENDS_ON_OBJ_FIELDS = True
+    SCHEMA_SERIALIZABLE = False
 
     def __init__(self, func):
         super(KnessetDataServiceLambdaField, self).__init__()
@@ -171,7 +173,8 @@ class BaseKnessetDataServiceObject(object):
     def get_json_table_schema(cls):
         return {"fields": [field.get_json_table_schema_field(fieldname)
                            for fieldname, field
-                           in cls.get_fields().iteritems()]}
+                           in cls.get_fields().iteritems()
+                           if field.SCHEMA_SERIALIZABLE]}
 
     @classmethod
     def get_field(cls, name=None):
@@ -188,6 +191,9 @@ class BaseKnessetDataServiceObject(object):
 
     def _set_field_value(self, field, attr_name, entry):
         field.set_value(self, attr_name, entry)
+
+    def all_schema_field_values(self):
+        return OrderedDict(((field["name"], getattr(self, field["name"])) for field in self.get_json_table_schema()["fields"]))
 
     def all_field_values(self):
         return OrderedDict(((k, getattr(self, k)) for k in self.get_fields()))
