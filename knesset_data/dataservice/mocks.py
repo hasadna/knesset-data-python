@@ -32,7 +32,7 @@ class MockMember(Member):
 
     @classmethod
     def _parse_entry_data(cls, entry):
-        data = {field._knesset_field_name: "" for field in cls.get_fields().values() if hasattr(field, "_knesset_field_name")}
+        data = {field._knesset_field_name: None for field in cls.get_fields().values() if hasattr(field, "_knesset_field_name")}
         data["mk_individual_id"] = entry
         return data
 

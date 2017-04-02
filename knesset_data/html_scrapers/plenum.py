@@ -93,8 +93,8 @@ class PlenumMeetings(object):
 
     @classmethod
     def get_json_table_schema(cls):
-        return {"fields": [{"name": "url", "type": "string", "description": "url to the meeting protocol"},
-                           {"name": "date", "type": "date", "description": "date of the meeting (does not include time part)"}]}
+        return {"fields": [{"name": "date", "type": "date", "description": "date of the meeting (does not include time part)"},
+                           {"name": "url", "type": "string", "description": "url to the meeting protocol"}]}
 
 
 class PlenumMeeting(object):
