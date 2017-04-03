@@ -352,3 +352,8 @@ class BaseKnessetDataServiceFunctionObject(BaseKnessetDataServiceObject):
         soup = cls._get_soup(cls._get_url(params), proxies=proxies)
         return (cls(cls._parse_element(element), proxies=proxies)
                 for element in soup.find_all('element'))
+
+    class KnessetDataServiceIdDescriptionField():
+        pass
+
+
