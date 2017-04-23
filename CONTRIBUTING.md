@@ -1,4 +1,4 @@
-# Contributing
+# knesset-data-python contribution guidelines
 
 ## Getting Started
 
@@ -11,3 +11,6 @@ pip install -e .
 ```
 bin/run_tests.sh
 ```
+
+## see also
+* [Knesset Data Contribution Guidelines](https://github.com/hasadna/knesset-data/blob/master/CONTRIBUTING.md)
