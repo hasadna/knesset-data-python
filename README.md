@@ -21,7 +21,7 @@ This module provides low-level APIs to support other higher-level modules from t
 
 ### Contributing
 
-Check out the [Knesset kata contribution guide](https://github.com/hasadna/knesset-data/blob/master/CONTRIBUTING.md)
+See the [contribution guide](https://github.com/hasadna/knesset-data-python/blob/master/CONTRIBUTING.md)
 
 ### Project Administration
 
