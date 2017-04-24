@@ -11,9 +11,25 @@ from cached_property import cached_property
 
 class PlenumProtocolFile(BaseProtocolFile):
 
+    @classmethod
+    def get_json_table_schema(cls):
+        return {"fields": [{"name": "header_text", "type": "string"},
+                           {"name": "meeting_num_heb", "type": "string"},
+                           {"name": "knesset_num_heb", "type": "string"},
+                           {"name": "knesset_num", "type": "integer"},
+                           {"name": "booklet_num", "type": "integer"},
+                           {"name": "booklet_num_heb", "type": "string"},
+                           {"name": "booklet_meeting_num", "type": "integer"},
+                           {"name": "booklet_meeting_num_heb", "type": "string"},
+                           {"name": "day_heb", "type": "string"},
+                           {"name": "date_string_heb", "type": "array", "description": "[day, month_name_heb, year]"},
+                           {"name": "time_string", "type": "array", "description": "[hours, minutes]"},
+                           {"name": "datetime", "type": "datetime"}]}
+
     @cached_property
     def header_text(self):
-        return self.antiword_text[:1000].replace("\n", "NL")
+        # the decode / encode here ensures we don't cut in the middle of utf-8 chars
+        return self.antiword_text[:1000].decode("utf-8", "ignore").encode("utf-8").replace("\n", "NL")
 
     @cached_property
     def meeting_num_heb(self):
@@ -73,6 +89,7 @@ class PlenumProtocolFile(BaseProtocolFile):
     def datetime(self):
         day, month_name_heb, year = self.date_string_heb
         hours, minutes = self.time_string
+        month_name_heb = {"מרס": "מרץ"}.get(month_name_heb, month_name_heb)
         months = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר']
         month = months.index(month_name_heb)+1
         return datetime(int(year), month, int(day), int(hours), int(minutes))

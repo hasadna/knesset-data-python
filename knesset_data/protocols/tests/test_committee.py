@@ -3,9 +3,14 @@ import unittest
 from knesset_data.protocols.committee import CommitteeMeetingProtocol
 import os
 from knesset_data.utils.testutils import TestCaseFileAssertionsMixin
+from knesset_data.non_knesset_data.open_knesset import get_all_mk_names
+from knesset_data.non_knesset_data.mocks import MOCK_OPEN_KNESSET_GET_ALL_MK_NAMES_RESPONSE
 
 
 class TestCommitteeMeetings(unittest.TestCase, TestCaseFileAssertionsMixin):
+
+    maxDiff = None
+
     def setUp(self):
         source_doc_file_name = os.path.join(os.path.dirname(__file__), '20_ptv_317899.doc')
         self.protocol_generator = CommitteeMeetingProtocol.get_from_filename(source_doc_file_name)
@@ -89,16 +94,37 @@ class TestCommitteeMeetings(unittest.TestCase, TestCaseFileAssertionsMixin):
         with CommitteeMeetingProtocol.get_from_text(None) as protocol:
             self.assertEqual([], protocol.find_attending_members([]))
 
+    def test_missing_member_issue132(self):
+        # TODO: switch to env_conditional_mock function when PR #9 is merged
+        if os.environ.get("NO_MOCKS", "") == "1":
+            all_mk_names = get_all_mk_names()
+        else:
+            all_mk_names = MOCK_OPEN_KNESSET_GET_ALL_MK_NAMES_RESPONSE
+        mks, mk_names = all_mk_names
+        with CommitteeMeetingProtocol.get_from_filename(os.path.join(os.path.dirname(__file__), '20_ptv_367393.doc')) as protocol:
+            attending_members = protocol.find_attending_members(mk_names)
+            self.assertEqual(attending_members, [u"אוסאמה סעדי",
+                                                 u"אורי מקלב",
+                                                 u"זאב בנימין בגין",
+                                                 u"יוליה מלינובסקי",
+                                                 # this MK has extra space which caused him not to be found
+                                                 # now we search the stripped name
+                                                 # but the return value still has the extra space (as provided)
+                                                 u"מיכאל מלכיאלי ",
+                                                 u"רויטל סויד",
+                                                 u"בנימין בגין",])
+
     def assertProtocolPartEquals(self, part, header, body):
         try:
             self.assertEqual(part.header, header)
-        except Exception, e:
-            print "--expected-header=", header, "--"
-            print "--actual-header=", part.header, "--"
-            raise e
+        except Exception as e:
+            print("--expected-header=", header, "--")
+            print("--actual-header=", part.header, "--")
+            raise
         try:
             self.assertEqual(part.body, body)
-        except Exception, e:
-            print "--expected-body = ", body, "--"
-            print "--actual-body = ", part.body, "--"
-            raise e
+        except Exception as e:
+            print("--expected-body = ", body, "--")
+            print("--actual-body = ", part.body, "--")
+            raise
+

@@ -102,7 +102,7 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
             s = r.split('\n')
             for (i, name) in enumerate(mk_names):
                 for s0 in s:
-                    if s0.find(name) >= 0 and name not in attended_mk_names:
+                    if s0.find(name.strip()) >= 0 and name not in attended_mk_names:
                         attended_mk_names.append(name)
         return attended_mk_names
 

@@ -1,26 +1,20 @@
-from requests import RequestException
+from knesset_data.exceptions import KnessetDataObjectException, KnessetDataRequestException
 
 
-class KnessetDataServiceRequestException(RequestException):
+class KnessetDataServiceRequestException(KnessetDataRequestException):
 
     def __init__(self, service_name, method_name, original_request_exception, *args, **kwargs):
         self.knesset_data_service_name = service_name
         self.knesset_data_method_name = method_name
-        self.original_request_exception = original_request_exception
-        original_request = getattr(original_request_exception, "request", None)
-        self.url = original_request.url if original_request else ""
-        self.message = original_request_exception.message
-        super(KnessetDataServiceRequestException, self).__init__(response=original_request_exception.response, request=original_request_exception.request, *args, **kwargs)
+        super(KnessetDataServiceRequestException, self).__init__(original_request_exception, *args, **kwargs)
 
     def __str__(self):
         return "{}, {}".format(self.message, self.url)
 
 
-class KnessetDataServiceObjectException(Exception):
+class KnessetDataServiceObjectException(KnessetDataObjectException):
 
     def __init__(self, cls, original_exception, entry=None, *args, **kwargs):
         self.dataservice_class = cls
         self.unparsed_entry = entry
-        self.original_exception = original_exception
-        self.message = self.original_exception.message
-        super(KnessetDataServiceObjectException, self).__init__(*args, **kwargs)
+        super(KnessetDataServiceObjectException, self).__init__(original_exception, *args, **kwargs)

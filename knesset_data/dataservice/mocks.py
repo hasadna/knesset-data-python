@@ -2,6 +2,10 @@
 # please try not to break backwards compatibility
 
 from knesset_data.dataservice.members import Member
+from knesset_data.dataservice.committees import CommitteeMeeting
+import datetime
+from knesset_data.dataservice.base import KnessetDataServiceLambdaField
+import contextlib
 
 
 class MockMember(Member):
@@ -32,7 +36,7 @@ class MockMember(Member):
 
     @classmethod
     def _parse_entry_data(cls, entry):
-        data = {field._knesset_field_name: "" for field in cls.get_fields().values() if hasattr(field, "_knesset_field_name")}
+        data = {field._knesset_field_name: None for field in cls.get_fields().values() if hasattr(field, "_knesset_field_name")}
         data["mk_individual_id"] = entry
         return data
 
@@ -52,3 +56,35 @@ class MockMember(Member):
                         {"feed": type("MockFeed", (object,),
                                       {"find_all": find_all})(),
                          "find": find})()
+
+
+class MockCommitteeMeeting(CommitteeMeeting):
+
+    class MockProtocolField(KnessetDataServiceLambdaField):
+
+        def __init__(self):
+            @contextlib.contextmanager
+            def get_protocol(obj, entry):
+                yield type("MockProtocol", (object,), {"text": "protocol text"})
+            super(MockCommitteeMeeting.MockProtocolField, self).__init__(get_protocol)
+
+    @classmethod
+    def get_fields(cls):
+        fields = super(MockCommitteeMeeting, cls).get_fields()
+        fields["protocol"] = cls.MockProtocolField()
+        return fields
+
+    @classmethod
+    def _parse_element(cls, element):
+        data = {field._knesset_field_name.lower(): None for name, field in cls.ORDERED_FIELDS if hasattr(field, "_knesset_field_name")}
+        data.update({"url": "mock url {}".format(element),
+                     "committee_agenda_date": datetime.datetime(2013, 5, element, 16, 33),
+                     "StartDateTime".lower(): datetime.datetime(2013, 5, element, 16, 44),
+                     "Committee_Agenda_id".lower(): element})
+        return {"data": data}
+
+    @classmethod
+    def _get_soup(cls, url, params=None, proxies=None):
+        def find_all(soup_instance, name, attrs=None):
+            return [1, 2, 3]
+        return type("MockSoup", (object,), {"find_all": find_all})()
