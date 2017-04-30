@@ -12,7 +12,7 @@ class Person(BaseKnessetDataServiceCollectionObject):
 		("gender_id", KnessetDataServiceSimpleField('GenderID', "integer", "gender id code")),
 		("gender_description", KnessetDataServiceSimpleField('GenderDesc', "string", "gender description")),
 		("email", KnessetDataServiceSimpleField('Email', "string", "email address")),
-		("is_current", KnessetDataServiceSimpleField('IsCurrent', "bool", "is a current member")),
+		("is_current", KnessetDataServiceSimpleField('IsCurrent', "string", "is a current member")),
 		("last_update", KnessetDataServiceSimpleField('LastUpdatedDate', "datetime", "last updated"))
 		]
 
@@ -45,7 +45,7 @@ class PersonToPosition(BaseKnessetDataServiceCollectionObject):
 		("committee_name", KnessetDataServiceSimpleField('CommitteeName', "string", "committee name")),
 		("start_update", KnessetDataServiceSimpleField('StartDate', "datetime", "start date")),
 		("finish_update", KnessetDataServiceSimpleField('FinishDate', "datetime", "finish date")),
-		("is_current", KnessetDataServiceSimpleField('IsCurrent', "bool", "is current")),
+		("is_current", KnessetDataServiceSimpleField('IsCurrent', "string", "is current")),
 		("last_update", KnessetDataServiceSimpleField('LastUpdatedDate', "datetime", "last updated"))
 	]
 
