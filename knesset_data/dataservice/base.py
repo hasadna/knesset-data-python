@@ -125,9 +125,7 @@ class BaseKnessetDataServiceObject(object):
         return KnessetDataServiceRequestException(cls._get_service_name(), cls._get_method_name(), original_exception)
 
     @classmethod
-    def _get_soup(cls, url, params=None, proxies=None):
-        params = {} if params == None else params
-        timeout = params.pop('__timeout__', cls.DEFAULT_REQUEST_TIMEOUT_SECONDS)
+    def _get_response_content(cls, url, params, timeout, proxies):
         try:
             proxies = proxies if proxies else {}
             response = requests.get(url, params=params, timeout=timeout, proxies=proxies)
@@ -139,7 +137,13 @@ class BaseKnessetDataServiceObject(object):
         if response.status_code != 200:
             raise Exception("invalid response status code: {}".format(response.status_code))
         else:
-            return BeautifulSoup(response.content, 'html.parser')
+            return response.content
+
+    @classmethod
+    def _get_soup(cls, url, params=None, proxies=None):
+        params = {} if params == None else params
+        timeout = params.pop('__timeout__', cls.DEFAULT_REQUEST_TIMEOUT_SECONDS)
+        return BeautifulSoup(cls._get_response_content(url, params, timeout, proxies), 'html.parser')
 
     @classmethod
     def _handle_prop(cls, prop_type, prop_null, prop):
@@ -358,3 +362,9 @@ class BaseKnessetDataServiceFunctionObject(BaseKnessetDataServiceObject):
         soup = cls._get_soup(cls._get_url(params), proxies=proxies)
         return (cls(cls._parse_element(element), proxies=proxies)
                 for element in soup.find_all('element'))
+
+
+
+
+
+
