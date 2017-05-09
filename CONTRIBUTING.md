@@ -7,7 +7,8 @@
 ```
 pip install -e .
 ```
-3. Run the tests
+3. Install antiword (`sudo apt-get install antiword`)
+4. Run the tests
 ```
 bin/run_tests.sh
 ```
