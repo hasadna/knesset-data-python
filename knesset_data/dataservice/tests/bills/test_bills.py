@@ -1,16 +1,17 @@
-from unittest import TestCase
-from knesset_data.dataservice.bills import Bill
-from itertools import islice
-from collections import OrderedDict
 import datetime
 import os
+from collections import OrderedDict
+from itertools import islice
+
+from knesset_data.dataservice.bills import Bill
+from knesset_data.dataservice.tests.test_utils import BaseTestCase
+
 
 class MockBill(Bill):
-
     @classmethod
     def _get_response_content(cls, url, params, timeout, proxies):
         if url == "http://knesset.gov.il/Odata/ParliamentInfo.svc//KNS_Bill":
-            filename = os.path.join(os.path.dirname(__file__), "ParliamentInfo.svc_KNS_Bill.xml")
+            filename = os.path.join(os.path.dirname(__file__), "response_files", "ParliamentInfo.svc_KNS_Bill.xml")
             if os.environ.get("TEST_BILLS_DOWNLOAD_DATA", "") == "yes":
                 content = super(MockBill, cls)._get_response_content(url, params, timeout, proxies)
                 with open(filename, "w") as f:
@@ -22,7 +23,8 @@ class MockBill(Bill):
             raise Exception("invalid url: {}".format(url))
         return content
 
-class BillsTestCase(TestCase):
+
+class BillsTestCase(BaseTestCase):
     maxDiff = None
 
     def _listify_bills(self, bills):
@@ -32,7 +34,7 @@ class BillsTestCase(TestCase):
         return res
 
     def test(self):
-        bills = self._listify_bills(list(islice(MockBill.get_all(), 2)))
+        bills = self._listify_bills(list(islice(Bill.get_all(), 2)))
         self.assertEqual(bills, [
             OrderedDict([
                 ('id', 5), ('kns_num', 1), ('name',

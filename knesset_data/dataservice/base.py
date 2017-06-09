@@ -306,6 +306,10 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
         return cls._get_instance_from_entry(soup.entry, skip_exceptions=False)
 
     @classmethod
+    def get_response_content_by_id(cls, id):
+        return cls._get_response_content(cls._get_url_single(id), {}, cls.DEFAULT_REQUEST_TIMEOUT_SECONDS, None)
+
+    @classmethod
     def get_page(cls, order_by=None, results_per_page=50, page_num=1, proxies=None, skip_exceptions=False):
         """
         gets a page of results
