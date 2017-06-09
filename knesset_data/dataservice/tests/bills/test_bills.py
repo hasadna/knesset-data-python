@@ -2,9 +2,9 @@ import datetime
 import os
 from collections import OrderedDict
 from itertools import islice
+from unittest import TestCase
 
 from knesset_data.dataservice.bills import Bill
-from knesset_data.dataservice.tests.test_utils import BaseTestCase
 
 
 class MockBill(Bill):
@@ -24,7 +24,7 @@ class MockBill(Bill):
         return content
 
 
-class BillsTestCase(BaseTestCase):
+class BillsTestCase(TestCase):
     maxDiff = None
 
     def _listify_bills(self, bills):
@@ -34,7 +34,7 @@ class BillsTestCase(BaseTestCase):
         return res
 
     def test(self):
-        bills = self._listify_bills(list(islice(Bill.get_all(), 2)))
+        bills = self._listify_bills(list(islice(MockBill.get_all(), 2)))
         self.assertEqual(bills, [
             OrderedDict([
                 ('id', 5), ('kns_num', 1), ('name',
