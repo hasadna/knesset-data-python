@@ -19,5 +19,5 @@ setup(
     url='https://github.com/hasadna/knesset-data-python',
     packages=find_packages(exclude=["tests", "test.*"]),
     install_requires=['beautifulsoup4', 'pyslet', 'requests', 'simplejson', 'pyth',
-                      'python-hebrew-numbers', 'cached-property', 'BeautifulSoup', 'mock'],
+                      'python-hebrew-numbers', 'cached-property', 'BeautifulSoup'],
 )
