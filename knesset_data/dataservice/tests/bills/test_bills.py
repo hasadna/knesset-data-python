@@ -11,7 +11,7 @@ class MockBill(Bill):
     @classmethod
     def _get_response_content(cls, url, params, timeout, proxies):
         if url == "http://knesset.gov.il/Odata/ParliamentInfo.svc//KNS_Bill":
-            filename = os.path.join(os.path.dirname(__file__), "response_files", "ParliamentInfo.svc_KNS_Bill.xml")
+            filename = os.path.join(os.path.dirname(__file__), "ParliamentInfo.svc_KNS_Bill.xml")
             if os.environ.get("TEST_BILLS_DOWNLOAD_DATA", "") == "yes":
                 content = super(MockBill, cls)._get_response_content(url, params, timeout, proxies)
                 with open(filename, "w") as f:
