@@ -20,7 +20,7 @@ This module provides low-level APIs to support other higher-level modules from t
 * ועדת הכנסת
 
 ### Known issues / FAQ / Common problems
-* **Knesset blocking of some requests** - this is a major problem, but it only affects specific cases, so you might not be affected by it. Please add a call to [is_reblaze_content](https://github.com/hasadna/knesset-data-python/blob/master/knesset_data/utils/reblaze.py#L1) to check any content you get from knesset and detect whether it was blocked, or if there is a different problem.
+* **Knesset blocking of some requests** - this is a major problem, but it only affects specific cases, so you might not be affected by it. Please add a call to [is_reblaze_content](https://github.com/hasadna/knesset-data-python/blob/master/knesset_data/utils/reblaze.py#L1) to check any content you get from knesset and detect whether it was blocked, or if there is a different problem. See [this issue](https://github.com/hasadna/knesset-data-python/issues/4) for some more details and possible fixes.
 * [what logic should knesset-data-python be responsible for?](https://github.com/hasadna/knesset-data-python/issues/6)
 
 ### Contributing
