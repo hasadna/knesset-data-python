@@ -1,12 +1,13 @@
-from unittest import TestCase
-from knesset_data.dataservice.bills import Bill
-from itertools import islice
-from collections import OrderedDict
 import datetime
 import os
+from collections import OrderedDict
+from itertools import islice
+from unittest import TestCase
+
+from knesset_data.dataservice.bills import Bill
+
 
 class MockBill(Bill):
-
     @classmethod
     def _get_response_content(cls, url, params, timeout, proxies):
         if url == "http://knesset.gov.il/Odata/ParliamentInfo.svc//KNS_Bill":
@@ -21,6 +22,7 @@ class MockBill(Bill):
         else:
             raise Exception("invalid url: {}".format(url))
         return content
+
 
 class BillsTestCase(TestCase):
     maxDiff = None
