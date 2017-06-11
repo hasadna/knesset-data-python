@@ -19,6 +19,9 @@ This module provides low-level APIs to support other higher-level modules from t
 * >>> print committees[0].name
 * ועדת הכנסת
 
+### Known issues / FAQ / Common problems
+* [what logic should knesset-data-python be responsible for?](https://github.com/hasadna/knesset-data-python/issues/6)
+
 ### Contributing
 
 See the [contribution guide](https://github.com/hasadna/knesset-data-python/blob/master/CONTRIBUTING.md)
