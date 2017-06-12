@@ -21,7 +21,7 @@ def main():
         #             f.write(r.content)
         #             print 'OK!'
         #     else:
-        #         print 'invalid status!'
+        #         print 'invalid stuatus!'
         # except RequestException, e:
         #     error = str(e)
         #     print error

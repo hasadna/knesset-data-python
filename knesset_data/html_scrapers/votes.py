@@ -1,4 +1,6 @@
-import urllib2
+from future.standard_library import install_aliases
+install_aliases()
+from urllib.request import urlopen
 import re
 
 from logging import getLogger
@@ -43,5 +45,5 @@ class HtmlVote(object):
     def get_from_vote_id(cls, vote_id):
         url = 'http://www.knesset.gov.il/vote/heb/Vote_Res_Map.asp?vote_id_t=%s' % vote_id
         logger.info('Trying to scrape member votes from %s', url)
-        page = urllib2.urlopen(url).read()
+        page = urlopen(url).read()
         return cls(page)

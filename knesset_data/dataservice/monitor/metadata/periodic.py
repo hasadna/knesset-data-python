@@ -50,7 +50,7 @@ def main():
                     logger.info('service %s metadata was not changed'%name)
             else:
                 notify_error(name, url, 'invalid status code', r.status_code)
-        except RequestException, e:
+        except RequestException as e:
             notify_error(name, url, 'request exception', str(e))
 
 if __name__ == "__main__":

@@ -1,15 +1,16 @@
 # encoding: utf-8
-import os
+from future.standard_library import install_aliases
+install_aliases()
+from urllib.request import urlopen
 import re
-import urllib2
-import urllib
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from logging import getLogger
 from itertools import chain
 from knesset_data.exceptions import KnessetDataObjectException
 from knesset_data.protocols.plenum import PlenumProtocolFile
 from knesset_data.utils.reblaze import is_reblaze_content
 from datetime import date
+
 
 logger = getLogger(__name__)
 
@@ -38,10 +39,10 @@ class PlenumMeetings(object):
         return content
 
     def _read_index_page(self, url):
-        return urllib2.urlopen(url).read()
+        return urlopen(url).read()
 
     def _read_file(self, url):
-        return urllib.urlopen(url).read()
+        return urlopen(url).read()
 
     def _download_latest(self, full, skip_exceptions=False):
         html = self._get_committees_index_page(full)
@@ -74,7 +75,7 @@ class PlenumMeetings(object):
                     url = url.replace('/heb/..', '')
                     logger.debug(url)
                     yield self._get_plenum_meeting(url, self._read_file(url.replace('/heb/..', '')), date(year, mon, day))
-            except Exception, e:
+            except Exception as e:
                 if skip_exceptions:
                     yield KnessetDataObjectException(e)
                 else:

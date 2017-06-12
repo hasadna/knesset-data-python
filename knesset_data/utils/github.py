@@ -1,11 +1,17 @@
 import os
 import json
+import logging
 
 
 def github_add_or_update_issue(title, msg, gist_files=None):
     token = os.environ.get('KNESSET_DATA_GITHUB_TOKEN', None)
     if token:
-        from octohub.connection import Connection as OctohubConnection
+        logging.warning("github_add_or_update_issue is deprecated, please don't use it")
+        try:
+            from octohub.connection import Connection as OctohubConnection
+        except Exception:
+            logging.exception("install octohub using from git+https://github.com/turnkeylinux/octohub.git")
+            raise
         github = OctohubConnection(token)
         if gist_files:
             res = github.send('POST', '/gists', data=json.dumps({

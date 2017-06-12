@@ -129,10 +129,10 @@ class BaseKnessetDataServiceObject(object):
         try:
             proxies = proxies if proxies else {}
             response = requests.get(url, params=params, timeout=timeout, proxies=proxies)
-        except requests.exceptions.InvalidSchema, e:
+        except requests.exceptions.InvalidSchema as e:
             # missing dependencies for SOCKS support
             raise e
-        except requests.RequestException, e:
+        except requests.RequestException as e:
             raise cls._get_request_exception(e)
         if response.status_code != 200:
             raise Exception("invalid response status code: {}".format(response.status_code))
@@ -268,7 +268,7 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
     def _get_instance_from_entry(cls, entry, skip_exceptions=False):
         try:
             return cls(cls._parse_entry(entry))
-        except Exception, e:
+        except Exception as e:
             if skip_exceptions:
                 return KnessetDataServiceObjectException(cls, e, entry)
             else:
