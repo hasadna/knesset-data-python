@@ -4,6 +4,7 @@ from base import BaseProtocolFile
 from cached_property import cached_property
 import re
 import contextlib
+from utils import fix_hyphens, get_people_list
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +106,59 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
                     if s0.find(name.strip()) >= 0 and name not in attended_mk_names:
                         attended_mk_names.append(name)
         return attended_mk_names
+
+    def find_attendees(self):
+        """
+        finds the people that attended the comittee meeting
+        will also try to parse their role and who it represents
+        """
+        if isinstance(self.text, (str, unicode)) and self.text:
+            text = fix_hyphens(self.text)
+            members = CommitteeMeetingProtocol._get_committee_members(text)
+            invitees = CommitteeMeetingProtocol._get_invitees(text)
+            legal_advisors = CommitteeMeetingProtocol._get_legal_advisors(text)
+            manager = CommitteeMeetingProtocol._get_committee_manager(text)
+
+            #TODO: export data.
+
+    @staticmethod
+    def _get_committee_members(text):
+        """
+        returns a list of mks names which attended the meeting, from the protocol text
+        """
+        return get_people_list(text,u"חברי הוועדה:")
+        
+
+    @staticmethod
+    def _get_invitees(text):
+        """
+        returns a list of the invitees which attended the meeting, from the protocol text
+        """
+        invitees = []
+        invitees_list = get_people_list(text,u"מוזמנים:")
+        for invitee_line in invitees_list:
+            invitee = {}
+            
+            if u"–" in invitee_line:
+                line_elements = invitee_line.split(u"–")
+                invitee["name"] = line_elements[0]
+                invitee["role"] = line_elements[1]
+
+            else:
+                invitee["name"] = invitee_line
+
+            invitees.append(invitee)
+
+    @staticmethod
+    def _get_legal_advisors(text):
+        return get_people_list(text,u"ייעוץ משפטי:")
+
+    @staticmethod
+    def _get_committee_manager(text):
+        return get_people_list(text,u"מנהל/ת הוועדה:")
+
+
+        
 
     @classmethod
     @contextlib.contextmanager
