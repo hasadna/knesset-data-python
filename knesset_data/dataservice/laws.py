@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from base import BaseKnessetDataServiceCollectionObject, KnessetDataServiceSimpleField
+from .base import BaseKnessetDataServiceCollectionObject, KnessetDataServiceSimpleField
 
 logger = logging.getLogger('knesset_data.dataservice.laws')
 

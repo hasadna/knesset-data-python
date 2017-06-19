@@ -1,4 +1,4 @@
-from base import BaseKnessetDataServiceCollectionObject, KnessetDataServiceSimpleField, KnessetDataServiceStrptimeField, KnessetDataServiceDateTimeField
+from .base import BaseKnessetDataServiceCollectionObject, KnessetDataServiceSimpleField, KnessetDataServiceStrptimeField, KnessetDataServiceDateTimeField
 import datetime
 
 

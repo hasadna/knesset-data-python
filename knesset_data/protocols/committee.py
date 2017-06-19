@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from base import BaseProtocolFile
+from .base import BaseProtocolFile
 from cached_property import cached_property
 import re
 import contextlib

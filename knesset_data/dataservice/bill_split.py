@@ -1,4 +1,4 @@
-from base import (BaseKnessetDataServiceCollectionObject, KnessetDataServiceSimpleField)
+from .base import (BaseKnessetDataServiceCollectionObject, KnessetDataServiceSimpleField)
 
 
 class BillSplit(BaseKnessetDataServiceCollectionObject):
