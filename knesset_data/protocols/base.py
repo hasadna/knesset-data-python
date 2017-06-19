@@ -98,9 +98,9 @@ class BaseProtocolFile(object):
             yield obj
         finally:
             if os.environ.get('KNESSET_DATA_PROTOCOLS_KEEP_FILES', None) == "yes":
-                print "\n"
-                print "keeping file: %s"%obj.file_name
-                print "\n"
+                print("\n")
+                print("keeping file: %s"%obj.file_name)
+                print("\n")
             else:
                 obj._close()
 
