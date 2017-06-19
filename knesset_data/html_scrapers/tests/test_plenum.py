@@ -22,7 +22,7 @@ class PlenumTestCase(TestCase):
             with meeting.protocol as p:
                 try:
                     protocol = p.file_contents[:15]
-                except Exception, e:
+                except Exception as e:
                     protocol = "EXCEPTION"
             return {
                 "date": meeting.date,

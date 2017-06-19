@@ -26,7 +26,7 @@ def antiword(filename):
     try:
         logger.debug(cmd)
         output = subprocess.check_output(cmd,stderr=subprocess.STDOUT,shell=True)
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
         raise AntiwordException(e.returncode, e.cmd, e.output)
     logger.debug(output)
     with open(filename+'.awdb.xml','r') as f:

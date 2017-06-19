@@ -31,7 +31,7 @@ class BaseProtocolFile(object):
         logger.debug("BaseProtocolFile:_get_file_from_url: {}".format(url))
         try:
             res_content = requests.get(url, proxies=self._proxies, timeout=self._get_url_timeout()).content
-        except Exception, e:
+        except Exception as e:
             if hasattr(e, "request"):
                 raise Exception("{message}, {url}".format(url=e.request.url, message=e.message))
             else:

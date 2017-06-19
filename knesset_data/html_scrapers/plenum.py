@@ -74,7 +74,7 @@ class PlenumMeetings(object):
                     url = url.replace('/heb/..', '')
                     logger.debug(url)
                     yield self._get_plenum_meeting(url, self._read_file(url.replace('/heb/..', '')), date(year, mon, day))
-            except Exception, e:
+            except Exception as e:
                 if skip_exceptions:
                     yield KnessetDataObjectException(e)
                 else:

@@ -22,7 +22,7 @@ def main():
         #             print 'OK!'
         #     else:
         #         print 'invalid status!'
-        # except RequestException, e:
+        # except RequestException as e:
         #     error = str(e)
         #     print error
 

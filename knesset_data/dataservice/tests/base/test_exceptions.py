@@ -24,14 +24,14 @@ class TestDataServiceRequestExceptions(unittest.TestCase):
         exception = None
         try:
             list(MockMember.get_page())
-        except Exception, e:
+        except Exception as e:
             exception = e
         self.assertEqual(exception.message, "member with exception on init")
         # get - raises an exception as soon as it's encountered
         exception = None
         try:
             MockMember.get(215)
-        except Exception, e:
+        except Exception as e:
             exception = e
         self.assertEqual(exception.message, "member with exception on get")
 
