@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-from urllib2 import urlopen
 import contextlib
 from tempfile import mkstemp
 import os
-from utils import antiword, antixml
+from .utils import antiword, antixml
 from cached_property import cached_property
 import io, requests
 import logging

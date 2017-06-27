@@ -3,7 +3,7 @@ import logging
 import subprocess
 import os
 import xml.etree.ElementTree as ET
-from exceptions import AntiwordException
+from .exceptions import AntiwordException
 
 
 logger = logging.getLogger(__name__)
