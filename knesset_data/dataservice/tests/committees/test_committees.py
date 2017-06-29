@@ -1,7 +1,10 @@
 import unittest
-from knesset_data.dataservice.committees import Committee
-from knesset_data.dataservice.constants import SERVICE_URLS
-from knesset_data.utils.testutils import data_dependant_test
+from ...committees import Committee
+from ...mocks import MockCommittee
+from ....utils.testutils import env_conditional_mock
+
+
+Committee = env_conditional_mock(Committee, MockCommittee)
 
 
 @data_dependant_test()

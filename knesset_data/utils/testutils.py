@@ -13,3 +13,10 @@ class TestCaseFileAssertionsMixin(object):
 
 def data_dependant_test():
     return unittest.skip('test has hard dependency on spcecific data from Knesset, should be rewritten to be less fragile')
+
+
+def env_conditional_mock(non_mock, mock):
+    if os.environ.get("NO_MOCKS", "") == "1":
+        return non_mock
+    else:
+        return mock

@@ -2,10 +2,12 @@
 # please try not to break backwards compatibility
 
 from knesset_data.dataservice.members import Member
-from knesset_data.dataservice.committees import CommitteeMeeting
+from knesset_data.dataservice.committees import Committee, CommitteeMeeting
 import datetime
 from knesset_data.dataservice.base import KnessetDataServiceLambdaField
 import contextlib
+import os
+from knesset_data.protocols.committee import CommitteeMeetingProtocol
 
 
 class MockMember(Member):
@@ -58,14 +60,37 @@ class MockMember(Member):
                          "find": find})()
 
 
+class MockCommittee(Committee):
+
+    @classmethod
+    def _get_soup(cls, url, params=None, proxies=None):
+        def find_all(soup_instance, name, attrs=None):
+            if name == "link":
+                return []
+            else:
+                return [1, 2, 3]
+
+        return type("MockSoup", (object,), {"entry": 1,
+                                            "feed": type("MockFeed", (object,), {"find_all": find_all})()})()
+
+    @classmethod
+    def _parse_entry(cls, entry):
+        data = {field._knesset_field_name.lower(): None for name, field in cls.ORDERED_FIELDS if hasattr(field, "_knesset_field_name")}
+        data.update({"committee_portal_link": "committee_{}".format(entry)})
+        return {
+            'id': entry,
+            'links': [],
+            'data': data,
+        }
+
+
 class MockCommitteeMeeting(CommitteeMeeting):
 
     class MockProtocolField(KnessetDataServiceLambdaField):
 
         def __init__(self):
-            @contextlib.contextmanager
             def get_protocol(obj, entry):
-                yield type("MockProtocol", (object,), {"text": "protocol text"})
+                return CommitteeMeetingProtocol.get_from_filename(os.path.join(os.path.dirname(__file__), "mock_files", "committee_meeting_protocol.doc"))
             super(MockCommitteeMeeting.MockProtocolField, self).__init__(get_protocol)
 
     @classmethod
