@@ -3,7 +3,7 @@ import logging
 import subprocess
 import os
 import xml.etree.ElementTree as ET
-from exceptions import AntiwordException
+from .exceptions import AntiwordException
 
 
 logger = logging.getLogger(__name__)
@@ -12,7 +12,10 @@ logger = logging.getLogger(__name__)
 def antixml(str):
     tree = ET.fromstring(str.replace("\n\n", ""))
     text = ET.tostring(tree, encoding='utf8', method='text')
-    text = "\n".join([line.strip() if len(line.strip()) == 0 else line for line in text.split("\n")])
+
+    tmp = text.split("\n")
+    tmp = [line.strip() if len(line.strip()) == 0 else line for line in tmp]
+    text = "\n".join(tmp)
     return text
 
 
@@ -26,7 +29,7 @@ def antiword(filename):
     try:
         logger.debug(cmd)
         output = subprocess.check_output(cmd,stderr=subprocess.STDOUT,shell=True)
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
         raise AntiwordException(e.returncode, e.cmd, e.output)
     logger.debug(output)
     with open(filename+'.awdb.xml','r') as f:

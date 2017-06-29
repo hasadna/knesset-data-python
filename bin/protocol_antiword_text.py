@@ -20,7 +20,7 @@ usage: {cmd} <source_doc_file_name> <output_txt_file_name>
 
 def main():
     if len(sys.argv) != 3:
-        print help_text.format(cmd=sys.argv[0])
+        print(help_text.format(cmd=sys.argv[0]))
     else:
         source_doc_file_name = sys.argv[1]
         output_txt_file_name = sys.argv[2]
@@ -28,7 +28,7 @@ def main():
             output_txt = protocol.antiword_text
             with open(output_txt_file_name, 'wb') as output_file:
                     output_file.write(output_txt)
-        print "DONE"
+        print("DONE")
 
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stdout, level=logging.WARNING)

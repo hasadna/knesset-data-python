@@ -31,7 +31,7 @@ class TestPlenumProtocolFile(unittest.TestCase):
         for k in keys:
             try:
                 res[k] = getattr(protocol, k)
-            except Exception, e:
+            except Exception as e:
                 res[k] = e.message
         return res
 
