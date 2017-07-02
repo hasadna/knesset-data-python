@@ -43,14 +43,16 @@ def get_people_list(text,token):
     #find the start of the list
     start_index = 0
     end_index = 0
+    found = False
     for i in range(len(lines)):
         
         if token in lines[i]:
             start_index = i
+            found = True
 
-        if start_index > 0:
+        if (start_index > 0) and (i > start_index):
             if u":" in lines[i] :
                 end_index = i
                 break
 
-    return lines[start_index +1 : end_index-1]
+    return filter(lambda x: x and (len(x) > 0),lines[start_index +1 : end_index-1]) if found else []

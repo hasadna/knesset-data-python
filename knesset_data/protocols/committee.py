@@ -135,7 +135,9 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
         """
         returns a list of mks names which attended the meeting, from the protocol text
         """
-        return get_people_list(text,u"חברי הוועדה:")
+        results = get_people_list(text,u'חברי הכנסת:')
+        results.extend(get_people_list(text,u"חברי הוועדה:"))
+        return results
         
 
     @staticmethod
@@ -158,13 +160,19 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
 
             invitees.append(invitee)
 
+        return invitees
+
     @staticmethod
     def _get_legal_advisors(text):
         return get_people_list(text,u"ייעוץ משפטי:")
 
     @staticmethod
     def _get_committee_manager(text):
-        return get_people_list(text,u"מנהל/ת הוועדה:")
+        results = get_people_list(text,u"מנהל/ת הוועדה:")
+        results.extend(get_people_list(text,u"מנהלת הוועדה:"))
+        results.extend(get_people_list(text,u"מנהל הוועדה:"))
+        return results
+
 
 
         
