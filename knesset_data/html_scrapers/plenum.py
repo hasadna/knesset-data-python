@@ -1,7 +1,6 @@
 # encoding: utf-8
 import os
 import re
-import urllib2
 import urllib
 from BeautifulSoup import BeautifulSoup
 from logging import getLogger
@@ -38,10 +37,10 @@ class PlenumMeetings(object):
         return content
 
     def _read_index_page(self, url):
-        return urllib2.urlopen(url).read()
+        return urllib.request.urlopen(url).read()
 
     def _read_file(self, url):
-        return urllib.urlopen(url).read()
+        return urllib.request.urlopen(url).read()
 
     def _download_latest(self, full, skip_exceptions=False):
         html = self._get_committees_index_page(full)

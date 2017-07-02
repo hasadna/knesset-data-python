@@ -1,4 +1,4 @@
-import urllib2
+import urllib
 import re
 
 from logging import getLogger
@@ -43,5 +43,5 @@ class HtmlVote(object):
     def get_from_vote_id(cls, vote_id):
         url = 'http://www.knesset.gov.il/vote/heb/Vote_Res_Map.asp?vote_id_t=%s' % vote_id
         logger.info('Trying to scrape member votes from %s', url)
-        page = urllib2.urlopen(url).read()
+        page = urllib.request.urlopen(url).read()
         return cls(page)

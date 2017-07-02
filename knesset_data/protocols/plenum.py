@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from urllib2 import urlopen
 from tempfile import mkstemp
 from datetime import datetime
 from hebrew_numbers import gematria_to_int
