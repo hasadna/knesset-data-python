@@ -9,6 +9,7 @@ from knesset_data.utils.github import github_add_or_update_issue
 from knesset_data.dataservice.exceptions import KnessetDataServiceRequestException, KnessetDataServiceObjectException
 from copy import deepcopy
 from collections import OrderedDict
+import six
 
 
 logger=logging.getLogger(__name__)
@@ -177,7 +178,7 @@ class BaseKnessetDataServiceObject(object):
     def get_json_table_schema(cls):
         return {"fields": [field.get_json_table_schema_field(fieldname)
                            for fieldname, field
-                           in cls.get_fields().iteritems()
+                           in six.iteritems(cls.get_fields())
                            if field.SCHEMA_SERIALIZABLE]}
 
     @classmethod
@@ -206,10 +207,10 @@ class BaseKnessetDataServiceObject(object):
         self._session = requests.session()
         self._entry = entry
         self._proxies = proxies if proxies else {}
-        for attr_name, field in self.get_fields().iteritems():
+        for attr_name, field in six.iteritems(self.get_fields()):
             if not field.DEPENDS_ON_OBJ_FIELDS:
                 self._set_field_value(field, attr_name, entry)
-        for attr_name, field in self.get_fields().iteritems():
+        for attr_name, field in six.iteritems(self.get_fields()):
             if field.DEPENDS_ON_OBJ_FIELDS:
                 self._set_field_value(field, attr_name, entry)
 
