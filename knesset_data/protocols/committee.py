@@ -107,7 +107,8 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
                         attended_mk_names.append(name)
         return attended_mk_names
 
-    def find_attendees(self):
+    @cached_property
+    def attendees(self):
         """
         finds the people that attended the comittee meeting
         will also try to parse their role and who it represents
@@ -119,7 +120,15 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
             legal_advisors = CommitteeMeetingProtocol._get_legal_advisors(text)
             manager = CommitteeMeetingProtocol._get_committee_manager(text)
 
-            #TODO: export data.
+            attendees = {}
+            attendees["mks"] = members
+            attendees["invitees"] = invitees
+            attendees["legal_advisors"] = legal_advisors
+            attendees["manager"] = manager
+
+            return attendees
+
+        return None
 
     @staticmethod
     def _get_committee_members(text):
