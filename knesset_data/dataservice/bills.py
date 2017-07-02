@@ -2,7 +2,7 @@ from .base import (
     BaseKnessetDataServiceCollectionObject, BaseKnessetDataServiceFunctionObject,
     KnessetDataServiceSimpleField, KnessetDataServiceLambdaField
 )
-import constants
+from .constants import *
 
 
 class Bill(BaseKnessetDataServiceCollectionObject):

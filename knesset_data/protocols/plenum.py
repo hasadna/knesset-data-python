@@ -2,7 +2,7 @@
 from tempfile import mkstemp
 from datetime import datetime
 from hebrew_numbers import gematria_to_int
-from utils import antiword, antixml
+from .utils import antiword, antixml
 import re
 from .base import BaseProtocolFile
 from cached_property import cached_property
