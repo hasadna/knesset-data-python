@@ -2,13 +2,22 @@
 import os
 import re
 import urllib
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from logging import getLogger
 from itertools import chain
 from knesset_data.exceptions import KnessetDataObjectException
 from knesset_data.protocols.plenum import PlenumProtocolFile
 from knesset_data.utils.reblaze import is_reblaze_content
 from datetime import date
+import six
+
+if six.PY2:
+    unicode = unicode
+elif six.PY3:
+    def unicode(a, b):
+        return a
+else:
+    raise RuntimeError('unsupported version of py in six module')
 
 logger = getLogger(__name__)
 
@@ -46,7 +55,7 @@ class PlenumMeetings(object):
         html = self._get_committees_index_page(full)
         if not html:
             raise Exception("failed to fetch committees_index_page({})".format(full))
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, 'html.parser')
         if full:
             words_of_the_knesset = self.WORDS_OF_THE_KNESSET_FULL
         else:
@@ -54,8 +63,8 @@ class PlenumMeetings(object):
         aelts = soup('a', text=words_of_the_knesset)
         for aelt in aelts:
             try:
-                selt = aelt.findPrevious('span', text=re.compile(self.DISCUSSIONS_ON_DATE))
-                href = aelt.parent.get('href')
+                selt = aelt.findPrevious('td', {"class": "Day"})
+                href = aelt.get('href')
                 if href.startswith('http'):
                     url = href
                 else:
@@ -63,6 +72,7 @@ class PlenumMeetings(object):
                 filename = re.search(r"[^/]*$", url).group()
                 logger.debug(filename)
                 m = re.search(r"\((.*)/(.*)/(.*)\)", selt)
+                m = re.search(r"\((.*)/(.*)/(.*)\)", selt.text)
                 if m is None:
                     selt = selt.findNext()
                     m = re.search(r"\((.*)/(.*)/(.*)\)", unicode(selt))
