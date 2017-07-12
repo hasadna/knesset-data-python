@@ -71,7 +71,6 @@ class PlenumMeetings(object):
                     url = self.FILE_BASE_URL + href
                 filename = re.search(r"[^/]*$", url).group()
                 logger.debug(filename)
-                m = re.search(r"\((.*)/(.*)/(.*)\)", selt)
                 m = re.search(r"\((.*)/(.*)/(.*)\)", selt.text)
                 if m is None:
                     selt = selt.findNext()
