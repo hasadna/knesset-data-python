@@ -97,7 +97,14 @@ class PlenumMeetings(object):
 
     @classmethod
     def sort(cls, plenum_meetings, descending=True):
-        return sorted(plenum_meetings, key=lambda o: o.date.strftime("%Y-%m-%d") if not isinstance(o, Exception) else None, reverse=descending)
+        s1 = []
+        s2 = []
+        for x in plenum_meetings:
+            if isinstance(x, Exception):
+                s2.append(x)
+            else:
+                s1.append(x)
+        return sorted(s1, key=lambda o: o.date.strftime("%Y-%m-%d"), reverse=descending) + s2
 
     @classmethod
     def get_json_table_schema(cls):
