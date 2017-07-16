@@ -46,7 +46,7 @@ class PlenumTestCase(TestCase):
                           '09/12/2014', '08/12/2014', '03/12/2014', '02/12/2014', '01/12/2014', '26/11/2014', 'fake exception'])
 
     def test_plenum_protocol_object(self):
-        with self._download().next().protocol as protocol:
+        with next(self._download()).protocol as protocol:
             self.assertEqual(protocol.knesset_num, 20)
 
     def test_as_generator(self):
