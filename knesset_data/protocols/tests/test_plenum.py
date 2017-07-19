@@ -4,6 +4,17 @@ from knesset_data.protocols.plenum import PlenumProtocolFile
 from datetime import datetime
 import os
 
+import six
+
+if six.PY2:
+    def myopen(a, b, **c):
+        return open(a, b)
+elif six.PY3:
+    def myopen(a, b, **c):
+        return open(a, b, **c)
+else:
+    raise RuntimeError('not supported version of py in six module')
+
 
 # this function is used by test_base to test the base protocol functionality
 def plenum_protocol_assertions(test_case, protocol):
@@ -36,7 +47,7 @@ class TestPlenumProtocolFile(unittest.TestCase):
         return res
 
     def test_from_data(self):
-        data = open(os.path.join(os.path.dirname(__file__), '20_ptm_381742.doc')).read()
+        data = myopen(os.path.join(os.path.dirname(__file__), '20_ptm_381742.doc'), 'rb').read()
         with PlenumProtocolFile.get_from_data(data) as protocol:
             expected_data = {'knesset_num_heb': 'עשרים',
                              'meeting_num_heb': 'מאתיים-ותשע-עשרה',
