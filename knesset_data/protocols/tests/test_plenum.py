@@ -43,12 +43,18 @@ class TestPlenumProtocolFile(unittest.TestCase):
             try:
                 res[k] = getattr(protocol, k)
             except Exception as e:
-                res[k] = e.message
+                res[k] = str(e)
         return res
 
     def test_from_data(self):
         data = myopen(os.path.join(os.path.dirname(__file__), '20_ptm_381742.doc'), 'rb').read()
         with PlenumProtocolFile.get_from_data(data) as protocol:
+
+            if six.PY2:
+                expected_exception =  "'NoneType' object has no attribute 'decode'"
+            if six.PY3:
+                expected_exception =  "'NoneType' object is not iterable"
+
             expected_data = {'knesset_num_heb': 'עשרים',
                              'meeting_num_heb': 'מאתיים-ותשע-עשרה',
                              "booklet_num_heb": None,
@@ -57,7 +63,7 @@ class TestPlenumProtocolFile(unittest.TestCase):
                              'time_string': ('16', '00'),
                              'datetime': datetime(2017, 3, 21, 16, 0),
                              "knesset_num": 20,
-                             'booklet_num': "'NoneType' object has no attribute 'decode'",
+                             'booklet_num': expected_exception,
                              "booklet_meeting_num": 219}
             actual_data = self._get_protocol_data(protocol, expected_data)
             self.assertEqual(actual_data, expected_data)
