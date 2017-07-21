@@ -10,9 +10,11 @@ import six
 if six.PY2:
     def decode(a, b):
         return a.decode(b)
+    unicode = unicode
 elif six.PY3:
     def decode(a, b):
         return a
+    unicode = str
 
 logger = logging.getLogger(__name__)
 

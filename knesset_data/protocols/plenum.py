@@ -6,7 +6,19 @@ from .utils import antiword, antixml
 import re
 from .base import BaseProtocolFile
 from cached_property import cached_property
+import six
 
+# solve issues with unicode for python3/2
+if six.PY2:
+    def encode(a, *b):
+        return a.encode(*b)
+    def decode(a, *b):
+        return a.decode(*b)
+elif six.PY3:
+    def encode(a, b):
+        return a
+    def decode(a, *b):
+        return a
 
 class PlenumProtocolFile(BaseProtocolFile):
 
@@ -28,7 +40,8 @@ class PlenumProtocolFile(BaseProtocolFile):
     @cached_property
     def header_text(self):
         # the decode / encode here ensures we don't cut in the middle of utf-8 chars
-        return self.antiword_text[:1000].decode("utf-8", "ignore").encode("utf-8").replace("\n", "NL")
+        z = decode(self.antiword_text[:1000], "utf-8", "ignore")
+        return encode(z, "utf-8").replace("\n", "NL")
 
     @cached_property
     def meeting_num_heb(self):
@@ -51,7 +64,7 @@ class PlenumProtocolFile(BaseProtocolFile):
 
     @cached_property
     def booklet_num(self):
-        return gematria_to_int(self.booklet_num_heb.decode('utf-8'))
+        return gematria_to_int(decode(self.booklet_num_heb, 'utf-8'))
 
     @cached_property
     def booklet_num_heb(self):
@@ -60,7 +73,7 @@ class PlenumProtocolFile(BaseProtocolFile):
 
     @cached_property
     def booklet_meeting_num(self):
-        return gematria_to_int(self.booklet_meeting_num_heb.decode('utf-8'))
+        return gematria_to_int(decode(self.booklet_meeting_num_heb, 'utf-8'))
 
     @cached_property
     def booklet_meeting_num_heb(self):
