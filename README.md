@@ -16,7 +16,7 @@ This module provides low-level APIs to support other higher-level modules from t
 * >>> committees = list(Committee.get_all_active_committees())
 * >>> len(committees)
 * 19
-* >>> print committees[0].name
+* >>> print(committees[0].name)
 * ועדת הכנסת
 
 ### Known issues / FAQ / Common problems

@@ -19,12 +19,12 @@ def main():
         #     if r.status_code == 200:
         #         with open(filename, 'wb') as f:
         #             f.write(r.content)
-        #             print 'OK!'
+        #             print('OK!')
         #     else:
-        #         print 'invalid status!'
-        # except RequestException, e:
+        #         print('invalid status!')
+        # except RequestException as e:
         #     error = str(e)
-        #     print error
+        #     print(error)
 
 
 if __name__ == "__main__":

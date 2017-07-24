@@ -24,16 +24,16 @@ class TestDataServiceRequestExceptions(unittest.TestCase):
         exception = None
         try:
             list(MockMember.get_page())
-        except Exception, e:
+        except Exception as e:
             exception = e
-        self.assertEqual(exception.message, "member with exception on init")
+        self.assertEqual(str(exception), "member with exception on init")
         # get - raises an exception as soon as it's encountered
         exception = None
         try:
             MockMember.get(215)
-        except Exception, e:
+        except Exception as e:
             exception = e
-        self.assertEqual(exception.message, "member with exception on get")
+        self.assertEqual(str(exception), "member with exception on get")
 
     def test_member_skipped_exceptions(self):
         # get_page with skip_exceptions - yields exception objects on error
@@ -53,7 +53,7 @@ class TestDataServiceRequestExceptions(unittest.TestCase):
             exception.knesset_data_method_name,
             exception.knesset_data_service_name,
             exception.url,
-            str(exception.message)
+            str(exception)
         ], [
             'Invalid Method Name',
             'committees',
@@ -73,7 +73,7 @@ class TestDataServiceRequestExceptions(unittest.TestCase):
             exception.knesset_data_method_name,
             exception.knesset_data_service_name,
             exception.url,
-            str(exception.message)
+            str(exception)
         ], [
             'FOOBARBAZBAX',
             'committees',

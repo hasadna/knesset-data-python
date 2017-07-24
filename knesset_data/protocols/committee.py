@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
 import logging
-from base import BaseProtocolFile
+from .base import BaseProtocolFile
 from cached_property import cached_property
 import re
 import contextlib
+import six
+
+# solve issues with unicode for python3/2
+if six.PY2:
+    def decode(a, b):
+        return a.decode(b)
+    unicode = unicode
+elif six.PY3:
+    def decode(a, b):
+        return a
+    unicode = str
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +34,7 @@ class CommitteeMeetingProtocolPart(object):
 
 class CommitteeMeetingProtocol(BaseProtocolFile):
 
-    not_header = re.compile(r'(^אני )|((אלה|אלו|יבוא|מאלה|ייאמר|אומר|אומרת|נאמר|כך|הבאים|הבאות):$)|(\(.\))|(\(\d+\))|(\d\.)'.decode('utf8'))
+    not_header = re.compile(decode(r'(^אני )|((אלה|אלו|יבוא|מאלה|ייאמר|אומר|אומרת|נאמר|כך|הבאים|הבאות):$)|(\(.\))|(\(\d+\))|(\d\.)', 'utf8'))
 
     def _is_legitimate_header(self, line):
         """Returns true if 'line' looks like something should be a protocol part header"""
@@ -38,7 +49,7 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
         if self._file_type == 'text':
             return self._file_data
         else:
-            text = self.antiword_text.decode('utf-8')
+            text = decode(self.antiword_text, 'utf-8')
             tmp = text.split('OMNITECH')
             if len(tmp)==2 and len(tmp[0]) < 40:
                 text = tmp[1]
@@ -94,7 +105,7 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
         attended_mk_names = []
         if isinstance(self.text, (str, unicode)) and self.text:
             result = re.search(
-                "חברי הו?ועד(.*?)(\n[^\n]*(ייעוץ|יועץ|רישום|רש(מים|מות|מו|מ|מת|ם|מה)|קצר(נים|ניות|ן|נית))[\s|:])".decode(
+                decode("חברי הו?ועד(.*?)(\n[^\n]*(ייעוץ|יועץ|רישום|רש(מים|מות|מו|מ|מת|ם|מה)|קצר(נים|ניות|ן|נית))[\s|:])", 
                     'utf8'), self.text, re.DOTALL)
             if not result:
                 return attended_mk_names
