@@ -4,7 +4,7 @@ from .base import BaseProtocolFile
 from cached_property import cached_property
 import re
 import contextlib
-from utils import fix_hyphens, get_people_list
+from .utils import fix_hyphens, get_people_list
 import six
 
 # solve issues with unicode for python3/2

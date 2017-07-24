@@ -20,4 +20,5 @@ setup(
     packages=find_packages(exclude=["tests", "test.*"]),
     install_requires=['beautifulsoup4', 'pyslet', 'requests', 'simplejson', 'pyth',
                       'python-hebrew-numbers', 'cached-property', 'six'],
+    extras_require={'develop': ["tox"]},
 )
