@@ -3,7 +3,7 @@ import unittest
 from knesset_data.protocols.plenum import PlenumProtocolFile
 from datetime import datetime
 import os
-from test_plenum import plenum_protocol_assertions
+from .test_plenum import plenum_protocol_assertions
 
 @unittest.skip("seems like file is reliably accessible only via whitelisted ip")
 class TestBaseProtocolFile(unittest.TestCase):

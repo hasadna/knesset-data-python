@@ -4,6 +4,17 @@ from knesset_data.protocols.plenum import PlenumProtocolFile
 from datetime import datetime
 import os
 
+import six
+
+if six.PY2:
+    def myopen(a, b, **c):
+        return open(a, b)
+elif six.PY3:
+    def myopen(a, b, **c):
+        return open(a, b, **c)
+else:
+    raise RuntimeError('not supported version of py in six module')
+
 
 # this function is used by test_base to test the base protocol functionality
 def plenum_protocol_assertions(test_case, protocol):
@@ -31,13 +42,19 @@ class TestPlenumProtocolFile(unittest.TestCase):
         for k in keys:
             try:
                 res[k] = getattr(protocol, k)
-            except Exception, e:
-                res[k] = e.message
+            except Exception as e:
+                res[k] = str(e)
         return res
 
     def test_from_data(self):
-        data = open(os.path.join(os.path.dirname(__file__), '20_ptm_381742.doc')).read()
+        data = myopen(os.path.join(os.path.dirname(__file__), '20_ptm_381742.doc'), 'rb').read()
         with PlenumProtocolFile.get_from_data(data) as protocol:
+
+            if six.PY2:
+                expected_exception =  "'NoneType' object has no attribute 'decode'"
+            if six.PY3:
+                expected_exception =  "'NoneType' object is not iterable"
+
             expected_data = {'knesset_num_heb': 'עשרים',
                              'meeting_num_heb': 'מאתיים-ותשע-עשרה',
                              "booklet_num_heb": None,
@@ -46,7 +63,7 @@ class TestPlenumProtocolFile(unittest.TestCase):
                              'time_string': ('16', '00'),
                              'datetime': datetime(2017, 3, 21, 16, 0),
                              "knesset_num": 20,
-                             'booklet_num': "'NoneType' object has no attribute 'decode'",
+                             'booklet_num': expected_exception,
                              "booklet_meeting_num": 219}
             actual_data = self._get_protocol_data(protocol, expected_data)
             self.assertEqual(actual_data, expected_data)

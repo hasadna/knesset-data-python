@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from base import (
+from .base import (
     BaseKnessetDataServiceCollectionObject, BaseKnessetDataServiceFunctionObject,
     KnessetDataServiceSimpleField, KnessetDataServiceLambdaField
 )

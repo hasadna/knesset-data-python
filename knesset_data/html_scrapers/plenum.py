@@ -1,15 +1,23 @@
 # encoding: utf-8
 import os
 import re
-import urllib2
 import urllib
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from logging import getLogger
 from itertools import chain
 from knesset_data.exceptions import KnessetDataObjectException
 from knesset_data.protocols.plenum import PlenumProtocolFile
 from knesset_data.utils.reblaze import is_reblaze_content
 from datetime import date
+import six
+
+if six.PY2:
+    unicode = unicode
+elif six.PY3:
+    def unicode(a, b):
+        return a
+else:
+    raise RuntimeError('unsupported version of py in six module')
 
 logger = getLogger(__name__)
 
@@ -38,16 +46,16 @@ class PlenumMeetings(object):
         return content
 
     def _read_index_page(self, url):
-        return urllib2.urlopen(url).read()
+        return urllib.request.urlopen(url).read()
 
     def _read_file(self, url):
-        return urllib.urlopen(url).read()
+        return urllib.request.urlopen(url).read()
 
     def _download_latest(self, full, skip_exceptions=False):
         html = self._get_committees_index_page(full)
         if not html:
             raise Exception("failed to fetch committees_index_page({})".format(full))
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, 'html.parser')
         if full:
             words_of_the_knesset = self.WORDS_OF_THE_KNESSET_FULL
         else:
@@ -55,15 +63,15 @@ class PlenumMeetings(object):
         aelts = soup('a', text=words_of_the_knesset)
         for aelt in aelts:
             try:
-                selt = aelt.findPrevious('span', text=re.compile(self.DISCUSSIONS_ON_DATE))
-                href = aelt.parent.get('href')
+                selt = aelt.findPrevious('td', {"class": "Day"})
+                href = aelt.get('href')
                 if href.startswith('http'):
                     url = href
                 else:
                     url = self.FILE_BASE_URL + href
                 filename = re.search(r"[^/]*$", url).group()
                 logger.debug(filename)
-                m = re.search(r"\((.*)/(.*)/(.*)\)", selt)
+                m = re.search(r"\((.*)/(.*)/(.*)\)", selt.text)
                 if m is None:
                     selt = selt.findNext()
                     m = re.search(r"\((.*)/(.*)/(.*)\)", unicode(selt))
@@ -74,7 +82,7 @@ class PlenumMeetings(object):
                     url = url.replace('/heb/..', '')
                     logger.debug(url)
                     yield self._get_plenum_meeting(url, self._read_file(url.replace('/heb/..', '')), date(year, mon, day))
-            except Exception, e:
+            except Exception as e:
                 if skip_exceptions:
                     yield KnessetDataObjectException(e)
                 else:
@@ -89,7 +97,14 @@ class PlenumMeetings(object):
 
     @classmethod
     def sort(cls, plenum_meetings, descending=True):
-        return sorted(plenum_meetings, key=lambda o: o.date.strftime("%Y-%m-%d") if not isinstance(o, Exception) else None, reverse=descending)
+        s1 = []
+        s2 = []
+        for x in plenum_meetings:
+            if isinstance(x, Exception):
+                s2.append(x)
+            else:
+                s1.append(x)
+        return sorted(s1, key=lambda o: o.date.strftime("%Y-%m-%d"), reverse=descending) + s2
 
     @classmethod
     def get_json_table_schema(cls):

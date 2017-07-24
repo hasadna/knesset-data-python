@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-from urllib2 import urlopen
 import contextlib
 from tempfile import mkstemp
 import os
-from utils import antiword, antixml
+from .utils import antiword, antixml
 from cached_property import cached_property
 import io, requests
 import logging
@@ -31,7 +30,7 @@ class BaseProtocolFile(object):
         logger.debug("BaseProtocolFile:_get_file_from_url: {}".format(url))
         try:
             res_content = requests.get(url, proxies=self._proxies, timeout=self._get_url_timeout()).content
-        except Exception, e:
+        except Exception as e:
             if hasattr(e, "request"):
                 raise Exception("{message}, {url}".format(url=e.request.url, message=e.message))
             else:
@@ -98,9 +97,9 @@ class BaseProtocolFile(object):
             yield obj
         finally:
             if os.environ.get('KNESSET_DATA_PROTOCOLS_KEEP_FILES', None) == "yes":
-                print "\n"
-                print "keeping file: %s"%obj.file_name
-                print "\n"
+                print("\n")
+                print("keeping file: %s"%obj.file_name)
+                print("\n")
             else:
                 obj._close()
 

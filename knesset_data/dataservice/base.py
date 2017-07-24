@@ -9,6 +9,7 @@ from knesset_data.utils.github import github_add_or_update_issue
 from knesset_data.dataservice.exceptions import KnessetDataServiceRequestException, KnessetDataServiceObjectException
 from copy import deepcopy
 from collections import OrderedDict
+import six
 
 
 logger=logging.getLogger(__name__)
@@ -129,10 +130,10 @@ class BaseKnessetDataServiceObject(object):
         try:
             proxies = proxies if proxies else {}
             response = requests.get(url, params=params, timeout=timeout, proxies=proxies)
-        except requests.exceptions.InvalidSchema, e:
+        except requests.exceptions.InvalidSchema as e:
             # missing dependencies for SOCKS support
             raise e
-        except requests.RequestException, e:
+        except requests.RequestException as e:
             raise cls._get_request_exception(e)
         if response.status_code != 200:
             raise Exception("invalid response status code: {}".format(response.status_code))
@@ -177,7 +178,7 @@ class BaseKnessetDataServiceObject(object):
     def get_json_table_schema(cls):
         return {"fields": [field.get_json_table_schema_field(fieldname)
                            for fieldname, field
-                           in cls.get_fields().iteritems()
+                           in six.iteritems(cls.get_fields())
                            if field.SCHEMA_SERIALIZABLE]}
 
     @classmethod
@@ -206,10 +207,10 @@ class BaseKnessetDataServiceObject(object):
         self._session = requests.session()
         self._entry = entry
         self._proxies = proxies if proxies else {}
-        for attr_name, field in self.get_fields().iteritems():
+        for attr_name, field in six.iteritems(self.get_fields()):
             if not field.DEPENDS_ON_OBJ_FIELDS:
                 self._set_field_value(field, attr_name, entry)
-        for attr_name, field in self.get_fields().iteritems():
+        for attr_name, field in six.iteritems(self.get_fields()):
             if field.DEPENDS_ON_OBJ_FIELDS:
                 self._set_field_value(field, attr_name, entry)
 
@@ -268,7 +269,7 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
     def _get_instance_from_entry(cls, entry, skip_exceptions=False):
         try:
             return cls(cls._parse_entry(entry))
-        except Exception, e:
+        except Exception as e:
             if skip_exceptions:
                 return KnessetDataServiceObjectException(cls, e, entry)
             else:

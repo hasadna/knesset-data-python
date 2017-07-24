@@ -3,15 +3,23 @@ import logging
 import subprocess
 import os
 import xml.etree.ElementTree as ET
-from exceptions import AntiwordException
+from .exceptions import AntiwordException
+import six
 
+# solve issues with unicode for python3/2
+if six.PY2:
+    def decode(a, b):
+        return a
+elif six.PY3:
+    def decode(a, b):
+        return a.decode(b)
 
 logger = logging.getLogger(__name__)
 
 
 def antixml(str):
     tree = ET.fromstring(str.replace("\n\n", ""))
-    text = ET.tostring(tree, encoding='utf8', method='text')
+    text = decode(ET.tostring(tree, encoding='utf8', method='text'), 'utf-8')
     text = "\n".join([line.strip() if len(line.strip()) == 0 else line for line in text.split("\n")])
     return text
 
@@ -26,7 +34,7 @@ def antiword(filename):
     try:
         logger.debug(cmd)
         output = subprocess.check_output(cmd,stderr=subprocess.STDOUT,shell=True)
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
         raise AntiwordException(e.returncode, e.cmd, e.output)
     logger.debug(output)
     with open(filename+'.awdb.xml','r') as f:

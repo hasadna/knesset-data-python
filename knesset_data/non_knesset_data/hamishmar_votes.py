@@ -1,6 +1,14 @@
 import csv
 from datetime import datetime
+import six
 
+
+if six.PY2:
+    def bdecode(a):
+        return a
+elif six.PY3:
+    def bdecode(a):
+        return a.decode()
 
 class HamishmarVote(object):
 
@@ -31,7 +39,7 @@ class HamishmarVote(object):
 
     @property
     def id(self):
-        return int(self.data.get('ID', self.data.get('\xef\xbb\xbf"ID"')))
+        return int(self.data.get('ID', self.data.get(bdecode(b'\xef\xbb\xbf"ID"'))))
 
     @property
     def date(self):
