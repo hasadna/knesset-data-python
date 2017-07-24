@@ -42,3 +42,25 @@ def antiword(filename):
     logger.debug('len(xmldata) = '+str(len(xmldata)))
     os.remove(filename+'.awdb.xml')
     return xmldata
+
+def fix_hyphens(text):
+    return text.replace(u"\n\n–\n\n",u" – ")
+
+def get_people_list(text,token):
+    lines = text.split("\n")
+    #find the start of the list
+    start_index = 0
+    end_index = 0
+    found = False
+    for i in range(len(lines)):
+        
+        if token in lines[i]:
+            start_index = i
+            found = True
+
+        if (start_index > 0) and (i > start_index):
+            if u":" in lines[i] :
+                end_index = i
+                break
+
+    return filter(lambda x: x and (len(x) > 0),lines[start_index +1 : end_index-1]) if found else []
