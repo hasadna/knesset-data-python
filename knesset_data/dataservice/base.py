@@ -9,7 +9,28 @@ from knesset_data.utils.github import github_add_or_update_issue
 from knesset_data.dataservice.exceptions import KnessetDataServiceRequestException, KnessetDataServiceObjectException
 from copy import deepcopy
 from collections import OrderedDict
+from knesset_data.utils.reblaze import is_reblaze_content
 import six
+
+if six.PY2:
+    unicode = unicode
+elif six.PY3:
+    def unicode(a, b):
+        return a
+else:
+    raise RuntimeError('unsupported version of py in six module')
+
+# solve issues with unicode for python3/2
+if six.PY2:
+    def encode(a, *b):
+        return a.encode(*b)
+    def decode(a, *b):
+        return a.decode(*b)
+elif six.PY3:
+    def encode(a, b):
+        return a
+    def decode(a, *b):
+        return a
 
 
 logger=logging.getLogger(__name__)
@@ -144,7 +165,10 @@ class BaseKnessetDataServiceObject(object):
     def _get_soup(cls, url, params=None, proxies=None):
         params = {} if params == None else params
         timeout = params.pop('__timeout__', cls.DEFAULT_REQUEST_TIMEOUT_SECONDS)
-        return BeautifulSoup(cls._get_response_content(url, params, timeout, proxies), 'html.parser')
+        content = cls._get_response_content(url, params, timeout, proxies)
+        tmp = content.decode("utf-8") if type(content) == bytes else content
+        is_reblaze_content(tmp, raise_exception=True)
+        return BeautifulSoup(content, 'html.parser')
 
     @classmethod
     def _handle_prop(cls, prop_type, prop_null, prop):

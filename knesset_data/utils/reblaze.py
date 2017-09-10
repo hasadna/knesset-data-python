@@ -1,5 +1,5 @@
 def is_reblaze_content(content, raise_exception=False):
-    if '<html><head><meta charset="utf-8"></head><body><script>window.rbzns' in content:
+    if '<html><head><meta charset="utf-8"></head><body><script>window.rbzns' in content or 'window.rbzid=' in content:
         if raise_exception:
             raise Exception("seems you are blocked by Knesset reblaze, sorry")
         else:
