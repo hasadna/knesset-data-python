@@ -43,12 +43,14 @@ def antiword(filename):
     os.remove(filename+'.awdb.xml')
     return xmldata
 
+
 def fix_hyphens(text):
     return text.replace(u"\n\n–\n\n",u" – ")
 
+
 def get_people_list(text,token):
     lines = text.split("\n")
-    #find the start of the list
+    # find the start of the list
     start_index = 0
     end_index = 0
     found = False
@@ -64,3 +66,17 @@ def get_people_list(text,token):
                 break
 
     return filter(lambda x: x and (len(x) > 0),lines[start_index +1 : end_index-1]) if found else []
+
+
+def get_speaker_list(text, token=u'היו"ר'):
+    fixed_text = fix_hyphens(text)
+    lines = fixed_text.split("\n")
+    start_index = 0
+    found = False
+    for i in range(len(lines)):
+        start_index = i
+        if token in lines[i] and ":" in lines[i]:
+            found = True
+            break
+
+    return filter(lambda x: x and x[-1] == u':',lines[start_index:]) if found else []
