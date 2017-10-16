@@ -63,4 +63,4 @@ def get_people_list(text,token):
                 end_index = i
                 break
 
-    return filter(lambda x: x and (len(x) > 0),lines[start_index +1 : end_index-1]) if found else []
+    return list(filter(lambda x: x and (len(x) > 0), lines[start_index +1 : end_index-1]) if found else [])
