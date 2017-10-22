@@ -147,7 +147,7 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
         finds the people who spoke in this committee meeting
         """
         if isinstance(self.text, (str, unicode)) and self.text:
-            return get_speaker_list(text)
+            return get_speaker_list(self.text)
 
         return []
 

@@ -78,5 +78,12 @@ def get_speaker_list(text, token=u'היו"ר'):
         if token in lines[i] and ":" in lines[i]:
             found = True
             break
+    if found:
+        speakers = list(set(filter(lambda x: x and x[-1] == u':', lines[start_index:])))
+        speakers = map(lambda x: x[:-1], speakers)
+        speakers = filter(lambda x: u"קריאה" != x, speakers)
+        speakers = filter(lambda x: u"קריאותנ" != x, speakers)
 
-    return filter(lambda x: x and x[-1] == u':',lines[start_index:]) if found else []
+        return speakers
+
+    return []
