@@ -4,7 +4,7 @@ from .base import BaseProtocolFile
 from cached_property import cached_property
 import re
 import contextlib
-from .utils import fix_hyphens, get_people_list
+from .utils import fix_hyphens, get_people_list, get_speaker_list
 import six
 
 # solve issues with unicode for python3/2
@@ -141,6 +141,16 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
 
         return None
 
+    @cached_property
+    def speakers(self):
+        """
+        finds the people who spoke in this committee meeting
+        """
+        if isinstance(self.text, (str, unicode)) and self.text:
+            return get_speaker_list(self.text)
+
+        return []
+
     @staticmethod
     def _get_committee_members(text):
         """
@@ -183,10 +193,6 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
         results.extend(get_people_list(text,u"מנהלת הוועדה:"))
         results.extend(get_people_list(text,u"מנהל הוועדה:"))
         return results
-
-
-
-        
 
     @classmethod
     @contextlib.contextmanager
