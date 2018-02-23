@@ -12,5 +12,5 @@ SERVICE_URLS = {
     'votes': "http://knesset.gov.il/KnessetOdataService/VotesData.svc",
     'messages': "http://knesset.gov.il/KnessetOdataService/KnessetMessagesData.svc",
     'mmm': "http://knesset.gov.il/KnessetOdataService/MMMData.svc",
-    'lobbyists': "http://knesset.gov.il/KnessetOdataService/LobbyistData.svc",
+    'lobbyists': "http://knesset.gov.il/Odata/Lobbyists.svc/V_Lobbyists",
 }
