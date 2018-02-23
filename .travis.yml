@@ -6,6 +6,7 @@ addons:
   apt:
     packages:
     - antiword
+    - poppler-utils
     - language-pack-he
 install:
 - ".travis/install.sh"

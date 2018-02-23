@@ -2,7 +2,7 @@
 import contextlib
 from tempfile import mkstemp
 import os
-from .utils import antiword, antixml
+from .utils import antiword, antixml, pdftotext
 from cached_property import cached_property
 import io, requests
 import logging
@@ -88,6 +88,17 @@ class BaseProtocolFile(object):
     @cached_property
     def antiword_text(self):
         return antixml(self.antiword_xml)
+
+    @cached_property
+    def pdf_text(self):
+        """ Uses pdftotext to extract text from a PDF document.
+
+        Pages are separated by a 0x0c (form feed) character.
+        """
+
+        text = pdftotext(self.file_name).decode('utf-8')
+        # FIXME: remove explicit bidi characters?
+        return text
 
     def _close(self):
         [func() for func in self._cleanup]
