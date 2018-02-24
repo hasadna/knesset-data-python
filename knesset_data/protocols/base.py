@@ -64,8 +64,7 @@ class BaseProtocolFile(object):
             return self._file_data
         else:
             suffix = ".%s"%self.file_extension if self.file_extension is not None else ""
-            fid, fname = mkstemp(suffix=suffix, prefix=self.temp_file_suffix)
-            f = open(fname, 'wb')
+            with f, fname = mkstemp(suffix=suffix, prefix=self.temp_file_suffix)
             f.write(self.file_contents)
             f.close()
             self._cleanup.append(lambda: os.remove(fname))
