@@ -17,9 +17,11 @@ class TestCommitteeMeetings(unittest.TestCase, TestCaseFileAssertionsMixin):
 
     def test_text(self):
         with self.protocol_generator as protocol:
+            protocol_text = protocol.text
+            assert protocol.parse_method == 'antiword'
             self.assertFileContents(
                 expected_file_name=os.path.join(os.path.dirname(__file__), '20_ptv_317899_processed.txt'),
-                actual_content=protocol.text
+                actual_content=protocol_text
             )
 
     def test_attending_members(self):
@@ -113,6 +115,123 @@ class TestCommitteeMeetings(unittest.TestCase, TestCaseFileAssertionsMixin):
                                                  u"מיכאל מלכיאלי ",
                                                  u"רויטל סויד",
                                                  u"בנימין בגין",])
+
+    @unittest.skipIf(not os.environ.get('TIKA_SERVER_ENDPOINT'), 'docx parsing requires tika server')
+    def test_docx_protocol_attendees(self):
+        source_doc_file_name = os.path.join(os.path.dirname(__file__), '20_ptv_502208.doc')
+        protocol_generator = CommitteeMeetingProtocol.get_from_filename(source_doc_file_name)
+        with protocol_generator as protocol:
+            self.assertEqual(['איתן כבל', 'יצחק וקנין', "עבד אל חכים חאג' יחיא",
+                              'איתן ברושי', 'שרן השכל'],
+                             protocol.find_attending_members([u"איתן כבל", u"יצחק וקנין",
+                                                              u"עבד אל חכים חאג' יחיא",
+                                                              u"איתן ברושי", u"שרן השכל"]))
+            self.assertEqual({'mks': ['איתן ברושי', 'שרן השכל', 'איתן כבל – היו"ר',
+                                      'יצחק וקנין', "עבד אל חכים חאג' יחיא"],
+                              'invitees': [
+                                  {'name': 'צביקה כהן', 'role': 'סמנכ"ל בכיר למימון והשקעות, משרד החקלאות ופיתוח הכפר'},
+                                  {'name': 'אורי צוק-בר',
+                                   'role': 'סמנכ"ל מחקר כלכלה ואסטרטגיה, משרד החקלאות ופיתוח הכפר'},
+                                  {'name': 'אסף לוי', 'role': 'סמנכ"ל גורמי יצור, משרד החקלאות ופיתוח הכפר'},
+                                  {'name': 'דפנה טיש'}, {'name': 'עמרי איתן בן צבי'},
+                                  {'name': 'עדי טל נוסבוים'},
+                                  {'name': 'ליאורה עופרי'},
+                                  {'name': 'עו"ד, משרד החקלאות ופיתוח הכפר'},
+                                  {'name': 'עו"ד, מח\' יעוץ וחקיקה, משרד המשפטים'},
+                                  {'name': 'יועמ"ש, המשרד לביטחון פנים'},
+                                  {'name': 'עו"ד, המשרד להגנת הסביבה'},
+                                  {'name': 'צבי אלון', 'role': 'מנכ"ל, מועצת הצמחים'},
+                                  {'name': 'אמיר שניידר'},
+                                  {'name': 'ירון סולומון'},
+                                  {'name': 'יועמ"ש, התאחדות האיכרים והחקלאים בישראל'},
+                                  {'name': 'מנהל המחלקה להתיישבות, האיחוד החקלאי'},
+                                  {'name': 'אריאל ארליך', 'role': 'ראש מחלקת ליטיגציה, פורום קהלת'},
+                                  {'name': 'מיכל זליקוביץ', 'role': 'נציגה, פורום קהלת'},
+                                  {'name': 'יעל שביט', 'role': 'שדלן/ית'}],
+                              'legal_advisors': ['איתי עצמון'],
+                              'manager': ['לאה ורון']},
+                             protocol.attendees)
+
+    @unittest.skipIf(not os.environ.get('TIKA_SERVER_ENDPOINT'), 'docx parsing requires tika server')
+    def test_docx_protocol_parts(self):
+        source_doc_file_name = os.path.join(os.path.dirname(__file__), '20_ptv_502208.doc')
+        protocol_generator = CommitteeMeetingProtocol.get_from_filename(source_doc_file_name)
+        with protocol_generator as protocol:
+            self.assertProtocolPartEquals(protocol.parts[0],
+                                          '',
+                                          u"""פרוטוקול של ישיבת ועדה
+
+הכנסת העשרים
+
+הכנסת
+
+
+
+12
+ועדת הכלכלה
+27/06/2018
+
+
+מושב רביעי
+
+
+
+פרוטוקול מס' 800
+מישיבת ועדת הכלכלה
+יום רביעי, י"ד בתמוז התשע"ח (27 ביוני 2018), שעה 9:00""")
+            self.assertProtocolPartEquals(protocol.parts[1],
+                                          u"""סדר היום""",
+                                          u"""הצעת חוק מועצת הצמחים (ייצור ושיווק) (תיקון מס' 10), התשע"ד-2014""")
+            self.assertProtocolPartEquals(protocol.parts[2],
+                                          u"""נכחו""",
+                                          u"""""")
+            self.assertProtocolPartEquals(protocol.parts[3],
+                                          u"""חברי הוועדה:""",
+                                          u"""איתן כבל – היו"ר
+יצחק וקנין
+עבד אל חכים חאג' יחיא""")
+            self.assertProtocolPartEquals(protocol.parts[4],
+                                          u"""חברי הכנסת""",
+                                          u"""איתן ברושי
+שרן השכל""")
+            self.assertProtocolPartEquals(protocol.parts[5],
+                                          u"""נכחו:""",
+                                          u"""""")
+            self.assertProtocolPartEquals(protocol.parts[6],
+                                          u"""מוזמנים:""",
+                                          u"""צביקה כהן - סמנכ"ל בכיר למימון והשקעות, משרד החקלאות ופיתוח הכפר
+
+אורי צוק-בר - סמנכ"ל מחקר כלכלה ואסטרטגיה, משרד החקלאות ופיתוח הכפר
+
+אסף לוי - סמנכ"ל גורמי יצור, משרד החקלאות ופיתוח הכפר
+
+דפנה טיש
+עמרי איתן בן צבי
+עדי טל נוסבוים
+ליאורה עופרי
+	–
+–
+–
+–
+	עו"ד, משרד החקלאות ופיתוח הכפר
+עו"ד, מח' יעוץ וחקיקה, משרד המשפטים
+יועמ"ש, המשרד לביטחון פנים
+עו"ד, המשרד להגנת הסביבה
+
+צבי אלון - מנכ"ל, מועצת הצמחים
+
+אמיר שניידר
+ירון סולומון
+	–
+–
+	יועמ"ש, התאחדות האיכרים והחקלאים בישראל
+מנהל המחלקה להתיישבות, האיחוד החקלאי
+
+אריאל ארליך - ראש מחלקת ליטיגציה, פורום קהלת
+
+מיכל זליקוביץ - נציגה, פורום קהלת
+
+יעל שביט - שדלן/ית""")
 
     def assertProtocolPartEquals(self, part, header, body):
         try:

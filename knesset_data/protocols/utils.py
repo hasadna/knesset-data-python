@@ -45,11 +45,14 @@ def antiword(filename):
 
 
 def fix_hyphens(text):
-    return text.replace(u"\n\n–\n\n",u" – ")
+    text = text.replace(u"\n\t–\n",u" – ")
+    text = text.replace(u"\n\n–\n\n",u" – ")
+    text = text.replace(u"\t", "")
+    return text
 
 
 def get_people_list(text,token):
-    lines = text.split("\n")
+    lines = [line.strip() for line in text.split("\n")]
     # find the start of the list
     start_index = 0
     end_index = 0
@@ -65,7 +68,8 @@ def get_people_list(text,token):
                 end_index = i
                 break
 
-    return list(filter(lambda x: x and (len(x) > 0), lines[start_index +1 : end_index-1]) if found else [])
+    return list(filter(lambda x: x and (len(x) > 0),
+                       lines[start_index +1 : end_index-1]) if found else [])
 
 
 def get_speaker_list(text, token=u'היו"ר'):

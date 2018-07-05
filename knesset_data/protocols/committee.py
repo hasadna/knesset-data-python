@@ -6,6 +6,7 @@ import re
 import contextlib
 from .utils import fix_hyphens, get_people_list, get_speaker_list
 import six
+import os
 
 # solve issues with unicode for python3/2
 if six.PY2:
@@ -59,7 +60,10 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
 
     def _get_section_text(self, section_lines):
         section_text = '\n'.join(section_lines).strip()
-        return section_text.replace(u"\n\n–\n\n", u' - ')
+        section_text = section_text.replace(u"\n\n–\n\n", u' - ')
+        section_text = section_text.replace(u"\n\t–\n\t", u' - ')
+        section_text = section_text.replace(u"\n\n\t", u'\n\n')
+        return section_text
 
     @cached_property
     def parts(self):
@@ -82,11 +86,15 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
         section = []
         header = ''
 
+        def add_part(_header, _section):
+            _header = _header.strip().strip('<>')
+            parts.append(CommitteeMeetingProtocolPart(_header, self._get_section_text(_section)))
+
         # now create the sections
         for line in protocol_text:
             if self._is_legitimate_header(line):
                 if (i > 1) or (section):
-                    parts.append(CommitteeMeetingProtocolPart(header.strip(), self._get_section_text(section)))
+                    add_part(header, section)
                 i += 1
                 header = re.sub('[\>:]+$', '', re.sub('^[\< ]+', '', line))
                 section = []
@@ -94,7 +102,7 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
                 section.append(line)
 
         # don't forget the last section
-        parts.append(CommitteeMeetingProtocolPart(header.strip(), self._get_section_text(section)))
+        add_part(header, section)
         return parts
 
     def find_attending_members(self, mk_names):
@@ -179,7 +187,13 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
             else:
                 invitee["name"] = invitee_line
 
-            invitees.append(invitee)
+            invitee['name'] = invitee['name'].strip()
+            if invitee['name']:
+                if 'role' in invitee:
+                    invitee['role'] = invitee['role'].strip()
+                    if not invitee['role']:
+                        del invitee['role']
+                invitees.append(invitee)
 
         return invitees
 

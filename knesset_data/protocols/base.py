@@ -19,6 +19,8 @@ class BaseProtocolFile(object):
         self._file_type, self._file_data = file
         self._cleanup = []
         self._proxies = proxies if proxies else {}
+        self._tika_metadata = None
+        self.parse_method = None
 
     def _get_url_timeout(self):
         # 10 seconds
@@ -84,7 +86,24 @@ class BaseProtocolFile(object):
 
     @cached_property
     def antiword_text(self):
-        return antixml(self.antiword_xml)
+        if os.environ.get('TIKA_SERVER_ENDPOINT'):
+            os.environ['TIKA_CLIENT_ONLY'] = '1'
+            import tika
+            tika.TikaClientOnly = True
+            from tika import parser
+            parsed = parser.from_file(self.file_name)
+            self._tika_metadata = parsed['metadata']
+            content_type = self._tika_metadata.get('Content-Type', [])
+            if len(content_type) > 0 and content_type[0] == 'application/msword':
+                # old word doc, can parse using the old and reliable antiword method
+                self.parse_method = 'antiword'
+                return antixml(self.antiword_xml)
+            else:
+                self.parse_method = 'tika'
+                return parsed['content']
+        else:
+            self.parse_method = 'antiword'
+            return antixml(self.antiword_xml)
 
     def _close(self):
         [func() for func in self._cleanup]
