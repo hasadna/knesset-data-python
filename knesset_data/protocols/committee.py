@@ -4,7 +4,7 @@ from .base import BaseProtocolFile
 from cached_property import cached_property
 import re
 import contextlib
-from .utils import fix_hyphens, get_people_list, get_speaker_list
+from .utils import fix_hyphens, get_people_list, get_speaker_list, get_people_list_all
 import six
 import os
 
@@ -138,12 +138,14 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
             invitees = CommitteeMeetingProtocol._get_invitees(text)
             legal_advisors = CommitteeMeetingProtocol._get_legal_advisors(text)
             manager = CommitteeMeetingProtocol._get_committee_manager(text)
+            financial_advisors = CommitteeMeetingProtocol._get_financial_advisors(text)
 
             attendees = {}
             attendees["mks"] = members
             attendees["invitees"] = invitees
             attendees["legal_advisors"] = legal_advisors
             attendees["manager"] = manager
+            attendees['financial_advisors'] = financial_advisors
 
             return attendees
 
@@ -175,7 +177,7 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
         returns a list of the invitees which attended the meeting, from the protocol text
         """
         invitees = []
-        invitees_list = get_people_list(text,u"מוזמנים:")
+        invitees_list = get_people_list(text,u"מוזמנים:", no_limit=True)
         for invitee_line in invitees_list:
             invitee = {}
             
@@ -198,15 +200,32 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
         return invitees
 
     @staticmethod
+    def _get_advisor_texts():
+        return ['ייעוץ', 'יעוץ', 'יועץ', 'יועץ/ת', 'יועצת']
+
+    @staticmethod
     def _get_legal_advisors(text):
-        return get_people_list(text,u"ייעוץ משפטי:")
+        tokens = set()
+        for legal in ['משפטי', 'משפטית']:
+            for advisor in CommitteeMeetingProtocol._get_advisor_texts():
+                tokens.add('{} {}:'.format(advisor, legal))
+        return get_people_list_all(text, tokens)
+
+    @staticmethod
+    def _get_financial_advisors(text):
+        tokens = set()
+        for financial in ['כלכלית', 'כלכלי']:
+            for advisor in CommitteeMeetingProtocol._get_advisor_texts():
+                tokens.add('{} {}:'.format(advisor, financial))
+        return get_people_list_all(text, tokens)
 
     @staticmethod
     def _get_committee_manager(text):
-        results = get_people_list(text,u"מנהל/ת הוועדה:")
-        results.extend(get_people_list(text,u"מנהלת הוועדה:"))
-        results.extend(get_people_list(text,u"מנהל הוועדה:"))
-        return results
+        tokens = set()
+        for committee in ['הוועדה', 'הועדה']:
+            for manager in ['מנהל/ת', 'מנהלת', 'מנהל']:
+                tokens.add('{} {}:'.format(manager, committee))
+        return get_people_list_all(text, tokens)
 
     @classmethod
     @contextlib.contextmanager

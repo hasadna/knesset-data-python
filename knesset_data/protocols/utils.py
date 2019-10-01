@@ -51,7 +51,22 @@ def fix_hyphens(text):
     return text
 
 
-def get_people_list(text,token):
+def get_people_list_all(text, tokens, no_limit=False):
+    results = set()
+    for token in tokens:
+        for p in get_people_list(text, token, no_limit=no_limit):
+            results.add(p)
+    return list(results)
+
+
+def strip_token(line, token):
+    if token in line:
+        return line.split(token)[1].strip()
+    else:
+        return line
+
+
+def get_people_list(text, token, no_limit=False):
     lines = [line.strip() for line in text.split("\n")]
     # find the start of the list
     start_index = 0
@@ -68,8 +83,18 @@ def get_people_list(text,token):
                 end_index = i
                 break
 
-    return list(filter(lambda x: x and (len(x) > 0),
-                       lines[start_index +1 : end_index-1]) if found else [])
+    if found:
+        return [
+            line for line in (
+                strip_token(line, token) for line in
+                filter(
+                    lambda x: x and (len(x) > 0),
+                    lines[start_index : end_index]
+                )
+            ) if no_limit or 3 < len(line) < 35
+        ]
+    else:
+        return []
 
 
 def get_speaker_list(text, token=u'היו"ר'):
