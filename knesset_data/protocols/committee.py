@@ -38,13 +38,19 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
 
     not_header = re.compile(decode(r'(^אני )|((אלה|אלו|יבוא|מאלה|ייאמר|אומר|אומרת|נאמר|כך|הבאים|הבאות):$)|(\(.\))|(\(\d+\))|(\d\.)', 'utf8'))
 
-    def _is_legitimate_header(self, line):
-        """Returns true if 'line' looks like something should be a protocol part header"""
-        if re.match(r'^\<.*\>\W*$', line):  # this is a <...> line.
-            return True
-        if not (line.strip().endswith(':')) or len(line) > 50 or self.not_header.search(line):
+    def _parse_header(self, line):
+        if re.match(r'^<.*>\W*$', line):  # this is a <...> line.
+            return re.sub('[>:]+$', '', re.sub('^[< ]+', '', line)).strip()
+        elif len(line) > 50 or self.not_header.search(line):
             return False
-        return True
+        elif line.strip().endswith(':'):
+            return line.strip()[:-1].strip()
+        else:
+            splitline = line.split(':')
+            # print(splitline)
+            if len(splitline) == 2 and len(splitline[0]) > 5 and (splitline[1].startswith('\t\t') or splitline[1].startswith('     ')):
+                return splitline[0].strip(), splitline[1].strip()
+        return False
 
     @cached_property
     def text(self):
@@ -92,12 +98,22 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
 
         # now create the sections
         for line in protocol_text:
-            if self._is_legitimate_header(line):
+            # print('-------', line)
+            parsed_header = self._parse_header(line)
+            # print('=======', parsed_header)
+            if parsed_header:
+                if isinstance(parsed_header, tuple):
+                    line = parsed_header[1]
+                    parsed_header = parsed_header[0]
+                else:
+                    line = None
                 if (i > 1) or (section):
                     add_part(header, section)
                 i += 1
-                header = re.sub('[\>:]+$', '', re.sub('^[\< ]+', '', line))
+                header = parsed_header
                 section = []
+                if line is not None:
+                    section.append(line)
             else:
                 section.append(line)
 

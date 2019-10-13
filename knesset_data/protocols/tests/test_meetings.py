@@ -27,6 +27,29 @@ def get_protocol_text_cached(CommitteeSessionID):
     return text
 
 
+def assert_num_speech_parts(CommitteeSessionID, protocol, expected_num_speech_parts):
+    parts = protocol.parts
+    num_parts = len(parts)
+    assert num_parts == expected_num_speech_parts, \
+        "expected number of protocol parts = {}, actual = {}, CommitteeSessionID={}".format(
+            expected_num_speech_parts, num_parts, CommitteeSessionID
+        )
+
+
+def assert_parts_texts(CommitteeSessionID, protocol, expected_parts_texts):
+    parts = protocol.parts
+    for expected_part in expected_parts_texts:
+        actual_part = parts[expected_part['index']]
+        assert actual_part.header == expected_part['header'], \
+            'actual header = "{}" expected = "{}" CommitteeSessionID={}'.format(
+                actual_part.header, expected_part['header'], CommitteeSessionID
+            )
+        assert len(actual_part.body.strip()) == expected_part['body_length'], \
+            'actual body len = "{}" expected = "{}" CommitteeSessionID={}'.format(
+                len(actual_part.body.strip()), expected_part['body_length'], CommitteeSessionID
+            )
+
+
 class TestCommitteeMeetingProtocol(CommitteeMeetingProtocol):
 
     @classmethod
@@ -42,16 +65,32 @@ class TestMeetings(unittest.TestCase):
     def test_meetings(self):
         with open('knesset_data/protocols/tests/test_meetings.yaml') as f:
             tests = yaml.load(f)
+        tests = (
+            test for test in tests
+            if (
+                not os.environ.get('COMMITTEE_SESSION_ID')
+                or str(test['CommitteeSessionID']) in os.environ.get('COMMITTEE_SESSION_ID').split(',')
+            )
+        )
         for test in tests:
             print("test['CommitteeSessionID'] =", test['CommitteeSessionID'])
             with TestCommitteeMeetingProtocol.get_from_CommitteeSessionID(test['CommitteeSessionID']) as protocol:
-                assert set(protocol.attendees['mks']) == set(test['expected']['mks']), \
-                    'meeting ID {} -actual mks = {}'.format(test['CommitteeSessionID'], protocol.attendees['mks'])
-                assert set(protocol.attendees['manager']) == set(test['expected']['manager']), \
-                    'meeting ID {} -actual manager = {}'.format(test['CommitteeSessionID'], protocol.attendees['manager'])
-                assert set(protocol.attendees['legal_advisors']) == set(test['expected']['legal_advisors']), \
-                    'meeting ID {} -actual legal advisors: {}'.format(test['CommitteeSessionID'], protocol.attendees['legal_advisors'])
-                assert protocol.attendees['invitees'] == test['expected']['invitees'], \
-                    'meeting ID {} - actual invitees: {}'.format(test['CommitteeSessionID'], protocol.attendees['invitees'])
-                assert set(protocol.attendees['financial_advisors']) == set(test['expected']['financial_advisors']), \
-                    'meeting ID {} - actual financial advisors: {}'.format(test['CommitteeSessionID'], protocol.attendees['financial_advisors'])
+                if test['expected'].get('mks') is not None:
+                    assert set(protocol.attendees['mks']) == set(test['expected']['mks']), \
+                        'meeting ID {} -actual mks = {}'.format(test['CommitteeSessionID'], protocol.attendees['mks'])
+                if test['expected'].get('manager') is not None:
+                    assert set(protocol.attendees['manager']) == set(test['expected']['manager']), \
+                        'meeting ID {} -actual manager = {}'.format(test['CommitteeSessionID'], protocol.attendees['manager'])
+                if test['expected'].get('legal_advisors') is not None:
+                    assert set(protocol.attendees['legal_advisors']) == set(test['expected']['legal_advisors']), \
+                        'meeting ID {} -actual legal advisors: {}'.format(test['CommitteeSessionID'], protocol.attendees['legal_advisors'])
+                if test['expected'].get('invitees') is not None:
+                    assert protocol.attendees['invitees'] == test['expected']['invitees'], \
+                        'meeting ID {} - actual invitees: {}'.format(test['CommitteeSessionID'], protocol.attendees['invitees'])
+                if test['expected'].get('financial_advisors') is not None:
+                    assert set(protocol.attendees['financial_advisors']) == set(test['expected']['financial_advisors']), \
+                        'meeting ID {} - actual financial advisors: {}'.format(test['CommitteeSessionID'], protocol.attendees['financial_advisors'])
+                if test['expected'].get('num_speech_parts') is not None:
+                    assert_num_speech_parts(test['CommitteeSessionID'], protocol, test['expected']['num_speech_parts'])
+                if test['expected'].get('parts_texts') is not None:
+                    assert_parts_texts(test['CommitteeSessionID'], protocol, test['expected']['parts_texts'])

@@ -48,12 +48,12 @@ class TestCommitteeMeetings(unittest.TestCase, TestCaseFileAssertionsMixin):
                                           u"""נכחו""",
                                           "")
             self.assertProtocolPartEquals(parts[3],
-                                          u"""חברי הוועדה:""",
+                                          u"""חברי הוועדה""",
                                           u"""משה גפני – היו"ר
 
 מיקי לוי""")
             self.assertProtocolPartEquals(parts[4],
-                                          u"""מוזמנים:""",
+                                          u"""מוזמנים""",
                                           u"""איריס וינברגר - סגנית בכירה ליועמ"ש, משרד האוצר
 
 גיא גולדמן - עוזר ראשי מחלקה משפטית, משרד האוצר
