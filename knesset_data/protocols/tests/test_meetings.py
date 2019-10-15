@@ -3,6 +3,8 @@ import unittest
 import contextlib
 import requests
 import os
+import csv
+import itertools
 
 from knesset_data.protocols.committee import CommitteeMeetingProtocol
 
@@ -50,6 +52,32 @@ def assert_parts_texts(CommitteeSessionID, protocol, expected_parts_texts):
             )
 
 
+def assert_protocol_parts_filename(CommitteeSessionID, protocol, expected_parts_filename):
+    filename = 'knesset_data/protocols/tests/'+expected_parts_filename
+    if not os.path.exists(filename):
+        print('expected parts file ({}) does not exist, creating it from actual parts'.format(expected_parts_filename))
+        with open(filename, 'w') as f:
+            writer = csv.writer(f)
+            writer.writerows(itertools.chain(
+                [['header', 'body']],
+                ([part.header, part.body] for part in protocol.parts)
+            ))
+        assert False
+    else:
+        with open(filename) as f:
+            reader = csv.reader(f)
+            expected_parts = []
+            for i, row in enumerate(reader):
+                if i == 0:
+                    assert row == ['header', 'body']
+                else:
+                    expected_parts.append({'header': row[0], 'body': row[1]})
+        actual_parts = protocol.parts
+        assert len(expected_parts) == len(actual_parts)
+        for i, actual_part in enumerate(actual_parts):
+            assert [expected_parts[i]['header'], expected_parts[i]['body']] == [actual_part.header, actual_part.body]
+
+
 class TestCommitteeMeetingProtocol(CommitteeMeetingProtocol):
 
     @classmethod
@@ -75,6 +103,8 @@ class TestMeetings(unittest.TestCase):
         for test in tests:
             print("test['CommitteeSessionID'] =", test['CommitteeSessionID'])
             with TestCommitteeMeetingProtocol.get_from_CommitteeSessionID(test['CommitteeSessionID']) as protocol:
+                if test['expected'].get('protocol_parts_filename') is not None:
+                    assert_protocol_parts_filename(test['CommitteeSessionID'], protocol, test['expected']['protocol_parts_filename'])
                 if test['expected'].get('mks') is not None:
                     assert set(protocol.attendees['mks']) == set(test['expected']['mks']), \
                         'meeting ID {} -actual mks = {}'.format(test['CommitteeSessionID'], protocol.attendees['mks'])

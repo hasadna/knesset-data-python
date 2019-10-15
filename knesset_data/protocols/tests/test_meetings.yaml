@@ -1,5 +1,6 @@
 - CommitteeSessionID: 86485
   expected:
+    protocol_parts_filename: parts_86485.csv
     'attended_mk_individual_ids': [123, 733, 203]
     'invitees':
       - {'name': 'עו"ד מלי סיטון', 'role': 'יועצת משפטית, משרד התחבורה'}
@@ -39,6 +40,7 @@
     financial_advisors: []
 - CommitteeSessionID: 2058899
   expected:
+    protocol_parts_filename: parts_2058899.csv
     'attended_mk_individual_ids': []
     'invitees': [{'name': 'שרת הקליטה - יעל תמיר'}, {'name': 'בוריס מפצר    - מנכ"ל המשרד לקליטת עליה'}, {'name': 'דני טופז'}, {'name': 'צ. חלמיש'}, {'name': 'ר. צוק'}, {'name': 'ח. צמיר'}, {'name': 'לבנת פורן'}]
     'legal_advisors': []
@@ -47,6 +49,7 @@
     'financial_advisors': ['סמדר אלחנני']
 - CommitteeSessionID: 2058793
   expected:
+    protocol_parts_filename: parts_2058793.csv
     'attended_mk_individual_ids': []
     'invitees': []
     'legal_advisors': ['אנה שניידר', 'ארבל אסטרחן']
@@ -55,6 +58,7 @@
     'financial_advisors': []
 - CommitteeSessionID: 66308
   expected:
+    protocol_parts_filename: parts_66308.csv
     'attended_mk_individual_ids': []
     'invitees': [{'name': 'עו"ד דוידה לחמן-מסר', 'role': 'משנה ליועץ המשפטי לממשלה'}, {'name': 'עו"ד מרים אילני', 'role': 'משרד המשפטים'}, {'name': 'עו"ד רות שיקלר', 'role': 'איגוד הבנקים, בנק לאומי'}, {'name': 'עו"ד שרית ויסטוך', 'role': 'איגוד הבנקים, בנק המזרחי'}, {'name': 'יוליוס רודיק', 'role': 'איגוד הבנקים, בנק דיסקונט'}, {'name': 'עו"ד מוטי ימין', 'role': 'הרשות לניירות ערך'}, {'name': 'עו"ד איריס ציבולסקי', 'role': 'הרשות לניירות ערך'}, {'name': 'עו"ד נתי שילה', 'role': 'איגוד החברות הציבוריות'}, {'name': 'עו"ד רונית פרל', 'role': 'התאחדות התעשיינים'}, {'name': 'עו"ד מוטי ארד', 'role': 'מטעם יוזמי הצעת החוק הפרטית'}, {'name': 'עו"ד מיכאל קליינר', 'role': 'מטעם יוזמי הצעת החוק הפרטית'}, {'name': 'איילת צור', 'role': 'יועצת כלכלית של ח"כ מיכאל איתן'}]
     'legal_advisors': ['עו"ד תמי סלע']
@@ -63,6 +67,7 @@
     'financial_advisors': []
 - CommitteeSessionID: 93485
   expected:
+    protocol_parts_filename: parts_93485.csv
     'attended_mk_individual_ids': []
     'invitees': []
     'legal_advisors': ['ארבל אסטרחן']
@@ -71,27 +76,46 @@
     'financial_advisors': []
 - CommitteeSessionID: 2063122
   expected:
+    protocol_parts_filename: parts_2063122.csv
     'invitees': [{'name': 'בריאן קזין, ראש שירות המזון, משרד הבריאות'}, {'name': 'שלום גולדברג, מהנדס ראשי, משרד הבריאות'}, {'name': 'עירית לבנה, ממונה על תחום הבריאות, משרד החינוך'}, {'name': 'עו"ד ריקי לוין, ממונה על פניות הציבור, משרד החינוך'}, {'name': 'ד"ר כרמלה שמעוני, חוקרת תקינה, משרד התעשייה והמסחר'}, {'name': 'ד"ר גידי ציפורי, הסתדרות הרופאים הווטרינריים'}, {'name': 'ד"ר שי סוריאנו, הסתדרות הרופאים הווטרינריים'}, {'name': 'ד"ר רוני סורקיס, הסתדרות הרופאים הווטרינריים'}, {'name': 'חני מונין, מנהלת מחלקת סקרים ובדיקות, הרשות להגנת הצרכן'}, {'name': 'ורד אורן, דוברת מכון התקנים'}, {'name': 'ד"ר נפתלי פולק, רכז תקינה בנושא מזון, מכון התקנים'}, {'name': 'יעקב יהושע, מנכ"ל חברת "התעשיינים", חברת קייטרינג'}, {'name': 'אלי רפפורט, מנכ"ל חברת "מבשלת מבוא חורון", חברת קייטרינג'}, {'name': 'זורי נוביץ, מנכ"ל חברת "סלקטד", חברת קייטרינג לעסקים'}, {'name': 'סיגלית הורביץ, מנהלת שיווק, חברת "סלקטד", חברת קייטרינג לעסקים'}, {'name': 'שמעון וייצמן, מנהל כספים, ניר עציון'}, {'name': 'יוסף מנדלבאום, מנהל ייצור, ניר עציון'}, {'name': 'דוד עידן'}]
     'legal_advisors': ['שרי אברמוב']
     'manager': ['שלומית קואולמן']
     'mks': ['היו"ר אמנון כהן', 'סופה לנדבר']
     'financial_advisors': []
-    "num_speech_parts": 58
+    "num_speech_parts": 186
     "parts_texts":
       - index: 0
         header: ""
         body_length: 276
       - index: 5
-        header: 'גידי ציפורי'
-        body_length: 23
+        header: 'מנהלת הוועדה'
+        body_length: 14
       - index: 50
-        header: 'היו"ר אמנון כהן'
-        body_length: 13
+        header: 'יעקב יהושע'
+        body_length: 36
 - CommitteeSessionID: 2063126
   expected:
+    protocol_parts_filename: parts_2063126.csv
     'invitees': [{'name': 'ישראל שוורץ, סמנכ"ל בכיר לאכלוס, משרד השיכון'}, {'name': 'שי יפתח, אגף התקציבים, משרד האוצר'}, {'name': 'עו"ד שלי כהן, בנק טפחות'}, {'name': 'דני צירלין, בנק דיסקונט למשכנתאות'}, {'name': 'גיא שמאי, מנהל מחלקת תביעות משפטיות, בנק לאומי למשכנתאות'}, {'name': 'מאיר דורון, מנכ"ל חברת חלמיש'}, {'name': 'אלי שחר, מנהל מחלקת אכלוס, חברת חלמיש'}, {'name': 'שולה אגמי, חברת מועצת העיר תל-אביב-יפו ומחזיקת תיק הרווחה'}, {'name': 'אוריאל אהרן, מנהל פרוייקט שיקום שכונת שפירא'}, {'name': 'שמואל ישראלוב'}, {'name': 'עו"ד אבי טברסקי'}, {'name': 'סימיון מיאייב'}, {'name': 'בוריס אלרוב'}, {'name': 'יצחקוב קנו'}]
     'legal_advisors': ['שירי אברמוב']
     'manager': ['שלומית קואולמן']
     'mks': ['היו"ר אמנון כהן', 'אביגדור ליברמן']
     'financial_advisors': []
-    "num_speech_parts": 72
+    "num_speech_parts": 209
+- CommitteeSessionID: 2063132
+  expected:
+    protocol_parts_filename: parts_2063132.csv
+    num_speech_parts: 228
+    parts_texts:
+      - index: 0
+        header: ""
+        body_length: 288
+      - index: 10
+        header: "ישראל שוורץ"
+        body_length: 630
+      - index: 20
+        header: "יורי שטרן"
+        body_length: 1605
+- CommitteeSessionID: 2080815
+  expected:
+    protocol_parts_filename: parts_2080815.csv

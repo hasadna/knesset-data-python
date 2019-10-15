@@ -41,14 +41,14 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
     def _parse_header(self, line):
         if re.match(r'^<.*>\W*$', line):  # this is a <...> line.
             return re.sub('[>:]+$', '', re.sub('^[< ]+', '', line)).strip()
-        elif len(line) > 50 or self.not_header.search(line):
+        elif self.not_header.search(line):
             return False
-        elif line.strip().endswith(':'):
+        elif len(line) <= 50 and line.strip().endswith(':'):
             return line.strip()[:-1].strip()
         else:
             splitline = line.split(':')
             # print(splitline)
-            if len(splitline) == 2 and len(splitline[0]) > 5 and (splitline[1].startswith('\t\t') or splitline[1].startswith('     ')):
+            if len(splitline) == 2 and 5 < len(splitline[0]) <= 50 and (splitline[1].startswith('\t') or splitline[1].startswith(' ')):
                 return splitline[0].strip(), splitline[1].strip()
         return False
 
@@ -98,6 +98,7 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
 
         # now create the sections
         for line in protocol_text:
+            line = re.sub(r'(<<\W[^>]*\W>>)', "", line)
             # print('-------', line)
             parsed_header = self._parse_header(line)
             # print('=======', parsed_header)
