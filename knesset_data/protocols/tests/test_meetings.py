@@ -73,9 +73,13 @@ def assert_protocol_parts_filename(CommitteeSessionID, protocol, expected_parts_
                 else:
                     expected_parts.append({'header': row[0], 'body': row[1]})
         actual_parts = protocol.parts
-        assert len(expected_parts) == len(actual_parts)
+        assert len(expected_parts) == len(actual_parts), \
+            'unexpected number of parts CommitteeSessionID {} expected {} actual {}'.format(CommitteeSessionID, len(expected_parts), len(actual_parts))
         for i, actual_part in enumerate(actual_parts):
-            assert [expected_parts[i]['header'], expected_parts[i]['body']] == [actual_part.header, actual_part.body]
+            assert [expected_parts[i]['header'], expected_parts[i]['body']] == [actual_part.header, actual_part.body], \
+                'CommitteeSessionID {} expected """{}""" actual """{}"""'.format(CommitteeSessionID,
+                                                                                 [expected_parts[i]['header'], expected_parts[i]['body']],
+                                                                                 [actual_part.header, actual_part.body])
 
 
 class TestCommitteeMeetingProtocol(CommitteeMeetingProtocol):

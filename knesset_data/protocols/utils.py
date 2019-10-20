@@ -48,6 +48,7 @@ def fix_hyphens(text):
     text = text.replace(u"\n\t–\n",u" – ")
     text = text.replace(u"\n\n–\n\n",u" – ")
     text = text.replace(u"\t", "")
+    text = text.replace('\n-\n', ' - ')
     return text
 
 

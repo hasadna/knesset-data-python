@@ -34,22 +34,31 @@ class CommitteeMeetingProtocolPart(object):
         }
 
 
-class CommitteeMeetingProtocol(BaseProtocolFile):
+def is_not_header(line):
+    return re.search(r'(^אני )|((אלה|אלו|יבוא|מאלה|ייאמר|אומר|אומרת|נאמר|כך|הבאים|הבאות):$)|(\(.\))|(\(\d+\))|(\d\.)', line)
 
-    not_header = re.compile(decode(r'(^אני )|((אלה|אלו|יבוא|מאלה|ייאמר|אומר|אומרת|נאמר|כך|הבאים|הבאות):$)|(\(.\))|(\(\d+\))|(\d\.)', 'utf8'))
+
+class CommitteeMeetingProtocol(BaseProtocolFile):
 
     def _parse_header(self, line):
         if re.match(r'^<.*>\W*$', line):  # this is a <...> line.
-            return re.sub('[>:]+$', '', re.sub('^[< ]+', '', line)).strip()
-        elif self.not_header.search(line):
-            return False
-        elif len(line) <= 50 and line.strip().endswith(':'):
-            return line.strip()[:-1].strip()
+            line = re.sub('[>:]+$', '', re.sub('^[< ]+', '', line)).strip()
+            if is_not_header(line):
+                return line
         else:
             splitline = line.split(':')
             # print(splitline)
-            if len(splitline) == 2 and 5 < len(splitline[0]) <= 50 and (splitline[1].startswith('\t') or splitline[1].startswith(' ')):
-                return splitline[0].strip(), splitline[1].strip()
+            if (
+                len(splitline) > 1
+                and 4 < len(splitline[0]) <= 35
+                and len(splitline[0].split(' ')) < 6
+                and not is_not_header(splitline[0])
+                and not re.search(r'\d+', splitline[0])
+            ):
+                return splitline[0].strip(), ':'.join(splitline[1:]).strip()
+            elif len(line) <= 50 and line.strip().endswith(':'):
+                if not is_not_header(line):
+                    return line.strip()[:-1].strip()
         return False
 
     @cached_property
@@ -120,7 +129,19 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
 
         # don't forget the last section
         add_part(header, section)
-        return parts
+
+        new_parts = []
+        last_part = None
+        for part in parts:
+            if last_part:
+                if last_part.body.strip() == '':
+                    last_part.body = part.header + ': ' + part.body
+                    last_part = part
+                    continue
+            new_parts.append(part)
+            last_part = part
+
+        return new_parts
 
     def find_attending_members(self, mk_names):
         """

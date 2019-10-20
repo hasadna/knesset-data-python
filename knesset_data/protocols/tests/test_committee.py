@@ -46,13 +46,10 @@ class TestCommitteeMeetings(unittest.TestCase, TestCaseFileAssertionsMixin):
                                           u"""צו תעריף המכס והפטורים ומס קנייה על טובין (הוראת שעה מס' 11), התשע"ה-2015 (ממירים – הטלת מכס על יבוא ממירים אלקטרוניים)""")
             self.assertProtocolPartEquals(parts[2],
                                           u"""נכחו""",
-                                          "")
-            self.assertProtocolPartEquals(parts[3],
-                                          u"""חברי הוועדה""",
-                                          u"""משה גפני – היו"ר
+                                          u"""חברי הוועדה: משה גפני – היו"ר
 
 מיקי לוי""")
-            self.assertProtocolPartEquals(parts[4],
+            self.assertProtocolPartEquals(parts[3],
                                           u"""מוזמנים""",
                                           u"""איריס וינברגר - סגנית בכירה ליועמ"ש, משרד האוצר
 
@@ -69,15 +66,15 @@ class TestCommitteeMeetings(unittest.TestCase, TestCaseFileAssertionsMixin):
 גילה ורד - עו"ד, הרשות השניה לטלוויזיה ורדיו
 
 חניתה חפץ - לוביסטית (פוליסי), מייצגת את סלקום""")
-            self.assertProtocolPartEquals(parts[5], u"""ייעוץ משפטי""", u"""שלומית ארליך""")
-            self.assertProtocolPartEquals(parts[6], u"""מנהל הוועדה""", u"""טמיר כהן""")
-            self.assertProtocolPartEquals(parts[7], u"""רישום פרלמנטרי""", u"""הדס צנוירט
+            self.assertProtocolPartEquals(parts[4], u"""ייעוץ משפטי""", u"""שלומית ארליך""")
+            self.assertProtocolPartEquals(parts[5], u"""מנהל הוועדה""", u"""טמיר כהן""")
+            self.assertProtocolPartEquals(parts[6], u"""רישום פרלמנטרי""", u"""הדס צנוירט
 
 צו תעריף המכס והפטורים ומס קנייה על טובין (הוראת שעה מס' 11), התשע"ה-2015 (ממירים – הטלת מכס על יבוא ממירים אלקטרוניים)""")
-            self.assertProtocolPartEquals(parts[8],
+            self.assertProtocolPartEquals(parts[7],
                                           u"""היו"ר משה גפני""",
                                           u"""בוקר טוב, אני מתכבד לפתוח את ישיבת ועדת הכספים. יש לנו היום צווים, תעריפי מכס. צו תעריף המכס והפטורים ומס קנייה על טובין (הוראת שעה מס' 11), התשע"ו-2015 (ממירים – הטלת מכס על יבוא ממירים אלקטרוניים). מי מציג את הצו? בבקשה.""")
-            self.assertProtocolPartEquals(parts[9],
+            self.assertProtocolPartEquals(parts[8],
                                           u"""קובי בוזו""",
                                           u"""בוקר טוב. קובי בוזו, רשות המסים. לצדי גיא גולדמן. לפני כחצי שנה היינו בוועדת הכספים בנושא של ממירים, וביקשנו, בשיתוף עם משרד הכלכלה, להמיר את מס הקנייה בשיעור 10% על ממירים, למכס בשיעור 10% על ממירים.""")
 
