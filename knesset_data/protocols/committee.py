@@ -41,6 +41,7 @@ def is_not_header(line):
 class CommitteeMeetingProtocol(BaseProtocolFile):
 
     def _parse_header(self, line):
+        line = line.strip('>').strip('<')
         if re.match(r'^<.*>\W*$', line):  # this is a <...> line.
             line = re.sub('[>:]+$', '', re.sub('^[< ]+', '', line)).strip()
             if is_not_header(line):

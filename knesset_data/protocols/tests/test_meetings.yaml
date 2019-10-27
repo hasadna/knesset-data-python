@@ -114,3 +114,10 @@
   expected:
     protocol_parts_filename: parts_2080808.csv
     num_speech_parts: 590
+- CommitteeSessionID: 334215
+  expected:
+    protocol_parts_filename: parts_334215.csv
+- CommitteeSessionID: 476897
+  expected:
+    protocol_parts_filename: parts_476897.csv
+    num_speech_parts: 513
