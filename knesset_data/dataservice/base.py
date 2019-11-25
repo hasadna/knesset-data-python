@@ -10,6 +10,7 @@ from knesset_data.dataservice.exceptions import KnessetDataServiceRequestExcepti
 from copy import deepcopy
 from collections import OrderedDict
 import six
+import traceback
 
 
 logger=logging.getLogger(__name__)
@@ -292,10 +293,18 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
         next_url = ds_utils.compose_url_get(start_url, params)
         while next_url:
             soup = cls._get_soup(next_url, proxies=proxies)
-            for entry in soup.feed.find_all('entry'):
+            try:
+                entries = soup.feed.find_all('entry')
+            except Exception:
+                traceback.print_exc()
+                entries = []
+            for entry in entries:
                 yield cls._get_instance_from_entry(entry, skip_exceptions=skip_exceptions)
-            next_link = soup.find('link', rel="next")
-            next_url = next_link and next_link.attrs.get('href', None)
+            try:
+                next_link = soup.find('link', rel="next")
+                next_url = next_link and next_link.attrs.get('href', None)
+            except Exception:
+                next_url = None
 
     @classmethod
     def get(cls, id, proxies=None):
