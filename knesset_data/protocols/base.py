@@ -2,7 +2,7 @@
 import contextlib
 from tempfile import mkstemp
 import os
-from .utils import antiword, antixml
+from .utils import antiword, antixml, AntiwordException, docx2txt_process
 from cached_property import cached_property
 import io, requests
 import logging
@@ -80,9 +80,14 @@ class BaseProtocolFile(object):
         else:
             return self.file.read()
 
+
     @cached_property
-    def antiword_xml(self):
-        return antiword(self.file_name)
+    def extract_doc_text(self):
+        try:
+            return antixml(antiword(self.file_name))
+        except AntiwordException as e:
+            return docx2txt_process(self.file_name)
+
 
     @cached_property
     def antiword_text(self):
@@ -97,13 +102,14 @@ class BaseProtocolFile(object):
             if len(content_type) > 0 and content_type[0] == 'application/msword':
                 # old word doc, can parse using the old and reliable antiword method
                 self.parse_method = 'antiword'
-                return antixml(self.antiword_xml)
+                return self.extract_doc_text
             else:
                 self.parse_method = 'tika'
                 return parsed['content']
         else:
             self.parse_method = 'antiword'
-            return antixml(self.antiword_xml)
+            return self.extract_doc_text
+
 
     def _close(self):
         [func() for func in self._cleanup]

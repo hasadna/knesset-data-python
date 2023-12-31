@@ -5,6 +5,7 @@ import os
 import xml.etree.ElementTree as ET
 from .exceptions import AntiwordException
 import six
+import docx2txt
 
 # solve issues with unicode for python3/2
 if six.PY2:
@@ -42,6 +43,10 @@ def antiword(filename):
     logger.debug('len(xmldata) = '+str(len(xmldata)))
     os.remove(filename+'.awdb.xml')
     return xmldata
+
+
+def docx2txt_process(filename):
+    return docx2txt.process(filename)
 
 
 def fix_hyphens(text):
