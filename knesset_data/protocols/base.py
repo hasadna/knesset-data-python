@@ -99,8 +99,14 @@ class BaseProtocolFile(object):
                 self.parse_method = 'antiword'
                 return antixml(self.antiword_xml)
             else:
-                self.parse_method = 'tika'
-                return parsed['content']
+                if parsed.get('content'):
+                    self.parse_method = 'tika'
+                    return parsed['content']
+                else:
+                    # Fall back to antiword if tika failed
+                    logger.warning("Tika failed to parse file: %s, got %r" % (self.file_name, parsed))
+                    self.parse_method = 'antiword'
+                    return antixml(self.antiword_xml)
         else:
             self.parse_method = 'antiword'
             return antixml(self.antiword_xml)
