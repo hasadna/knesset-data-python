@@ -67,7 +67,13 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
         if self._file_type == 'text':
             return self._file_data
         else:
-            text = decode(self.antiword_text, 'utf-8')
+            extension = self.file_extension.lower()
+            if self.file_extension == 'doc':
+                text = decode(self.antiword_text, 'utf-8')
+            elif self.file_extension == 'pdf':
+                text = decode(self.pdf_text, 'utf-8')
+            else:
+                text = ''
             tmp = text.split('OMNITECH')
             if len(tmp)==2 and len(tmp[0]) < 40:
                 text = tmp[1]
