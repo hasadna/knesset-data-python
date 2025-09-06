@@ -92,7 +92,7 @@ class CommitteeMeetingProtocol(BaseProtocolFile):
             # if re.match(r'^\<.*\>\W*$',line): # this line start and ends with
             #                                  # <...>. need to remove it.
             #    line = line[1:-1]
-            if line.startswith(':'):
+            if line.startswith(':') and len(protocol_text) > 0:
                 protocol_text[-1] += ':'
                 protocol_text.append(line[1:])
             else:
