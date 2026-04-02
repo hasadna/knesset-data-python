@@ -2,7 +2,7 @@
 import contextlib
 from tempfile import mkstemp
 import os
-from .utils import antiword, antixml
+from .utils import antiword, antixml, pdftotext
 from cached_property import cached_property
 import io, requests
 import logging
@@ -15,8 +15,9 @@ class BaseProtocolFile(object):
 
     temp_file_suffix = "temp_knesset_data_protocols_"
 
-    def __init__(self, file, proxies=None):
+    def __init__(self, file, proxies=None, extension=None):
         self._file_type, self._file_data = file
+        self.extension = extension
         self._cleanup = []
         self._proxies = proxies if proxies else {}
         self._tika_metadata = None
@@ -57,6 +58,8 @@ class BaseProtocolFile(object):
         if self._file_type in ("filename", "url") and self._file_data:
             filename, file_extension = os.path.splitext(self._file_data)
             return file_extension[1:]
+        if self.extension is not None:
+            return self.extension
         else:
             return None
 
@@ -111,13 +114,24 @@ class BaseProtocolFile(object):
             self.parse_method = 'antiword'
             return antixml(self.antiword_xml)
 
+    @cached_property
+    def pdf_text(self):
+        """ Uses pdftotext to extract text from a PDF document.
+
+        Pages are separated by a 0x0c (form feed) character.
+        """
+
+        text = pdftotext(self.file_name).decode('utf-8')
+        # FIXME: remove explicit bidi characters?
+        return text
+
     def _close(self):
         [func() for func in self._cleanup]
 
     @classmethod
     @contextlib.contextmanager
-    def _get_from(cls, file_type, file_data, proxies=None):
-        obj = cls((file_type, file_data), proxies=proxies)
+    def _get_from(cls, file_type, file_data, proxies=None, extension=None):
+        obj = cls((file_type, file_data), proxies=proxies, extension=extension)
         try:
             yield obj
         finally:
@@ -135,8 +149,8 @@ class BaseProtocolFile(object):
 
     @classmethod
     @contextlib.contextmanager
-    def get_from_file(cls, file):
-        with cls._get_from('file', file) as p: yield p
+    def get_from_file(cls, file, extension=None):
+        with cls._get_from('file', file, extension=extension) as p: yield p
 
     @classmethod
     @contextlib.contextmanager

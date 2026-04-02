@@ -2,8 +2,10 @@
 import logging
 import subprocess
 import os
+import subprocess
 import xml.etree.ElementTree as ET
-from .exceptions import AntiwordException
+from .exceptions import AntiwordException, PdftotextException, \
+                        PdftotextNotInstalledException
 import six
 
 # solve issues with unicode for python3/2
@@ -42,6 +44,25 @@ def antiword(filename):
     logger.debug('len(xmldata) = '+str(len(xmldata)))
     os.remove(filename+'.awdb.xml')
     return xmldata
+
+
+def pdftotext(filename):
+    """ returns the text of a PDF file given by its file.
+
+    Uses pdftotext from package poppler-utils on Debian
+    """
+    if not os.path.exists(filename):
+        raise IOError('File not found: %s'%filename)
+    try:
+        text = subprocess.check_output(['pdftotext', filename, '-'],
+                                       stderr=subprocess.STDOUT)
+    except FileNotFoundError as e:
+        raise PdftotextNotInstalledException()
+    except subprocess.CalledProcessError as e:
+        print("Tzafrir: <<no poppler?>>")
+        sys.exit(2)
+        raise PdftotextException(e.returncode, e.cmd, e.output)
+    return text
 
 
 def fix_hyphens(text):
