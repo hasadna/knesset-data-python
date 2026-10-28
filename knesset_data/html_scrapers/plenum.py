@@ -86,7 +86,7 @@ class PlenumMeetings(object):
                 if skip_exceptions:
                     yield KnessetDataObjectException(e)
                 else:
-                    raise e
+                    raise
 
     def _get_plenum_meeting(self, url, protocol, date):
         return PlenumMeeting(url, protocol, date)

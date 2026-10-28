@@ -33,6 +33,10 @@ class PlenumTestCase(TestCase):
     def _download(self, **kwargs):
         return MockPlenumMeetings().download(**kwargs)
 
+    def test_download_raises_by_default(self):
+        with self.assertRaisesRegex(Exception, 'fake exception'):
+            list(self._download())
+
     # this is the most common use-case
     # fetches all results, sorts descending, and skips exceptions (which will be returned at the end of all results as exception objects)
     def test_fetch_all_sorted(self):

@@ -1,4 +1,5 @@
 import urllib
+import urllib.error
 import re
 
 from logging import getLogger
@@ -7,8 +8,9 @@ logger = getLogger(__name__)
 
 
 class HtmlVote(object):
-    def __init__(self, page):
+    def __init__(self, page, skip_exceptions=False):
         self.page = page
+        self.skip_exceptions = skip_exceptions
 
     @property
     def member_votes(self):
@@ -35,13 +37,21 @@ class HtmlVote(object):
                     member_id = re.search("""MKID=(\d+)""", i).group(1)
                     results.append((member_id, vote_result_code))
                 except AttributeError as e:
-                    logger.exception('Failed to find html vote for specific mk %s' % i)
-                    continue
+                    if self.skip_exceptions:
+                        logger.exception('Failed to find html vote for specific mk %s' % i)
+                        results.append(e)
+                    else:
+                        raise
         return results
 
     @classmethod
-    def get_from_vote_id(cls, vote_id):
+    def get_from_vote_id(cls, vote_id, skip_exceptions=False):
         url = 'http://www.knesset.gov.il/vote/heb/Vote_Res_Map.asp?vote_id_t=%s' % vote_id
         logger.info('Trying to scrape member votes from %s', url)
-        page = urllib.request.urlopen(url).read()
-        return cls(page)
+        try:
+            page = urllib.request.urlopen(url).read()
+        except urllib.error.URLError as e:
+            if skip_exceptions:
+                return e
+            raise
+        return cls(page, skip_exceptions=skip_exceptions)

@@ -10,7 +10,6 @@ from knesset_data.dataservice.exceptions import KnessetDataServiceRequestExcepti
 from copy import deepcopy
 from collections import OrderedDict
 import six
-import traceback
 
 
 logger=logging.getLogger(__name__)
@@ -274,7 +273,7 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
             if skip_exceptions:
                 return KnessetDataServiceObjectException(cls, e, entry)
             else:
-                raise e
+                raise
 
     @classmethod
     def _get_all_pages(cls, start_url, params=None, proxies=None, skip_exceptions=False):
@@ -284,45 +283,63 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
         it's dangerous because there is no stop condition
         so be sure to use it only with some kind of filter in the url to limit number of results
         this function returns a generator yielding dataservice object instances
-        in case of exception in getting the http response - it will raise the exception directly
-        in case of exception in parsing the entry, behavior depends on skip_exceptions param
-        if False - will raise exception directly, otherwise - yields an KnessetDataServiceObjectException instance
+        exceptions are raised by default. When skip_exceptions is True, request
+        and feed errors are yielded as exception objects, while entry errors are
+        yielded as KnessetDataServiceObjectException instances.
         """
         # Composing URL in advance since the link to the next page already have the params of the
         # first request and using `get_soup` with the params argument creates duplicate params
         next_url = ds_utils.compose_url_get(start_url, params)
         while next_url:
-            soup = cls._get_soup(next_url, proxies=proxies)
+            try:
+                soup = cls._get_soup(next_url, proxies=proxies)
+            except Exception as e:
+                if skip_exceptions:
+                    yield e
+                    return
+                raise
             try:
                 entries = soup.feed.find_all('entry')
-            except Exception:
-                traceback.print_exc()
-                entries = []
+            except Exception as e:
+                if skip_exceptions:
+                    yield e
+                    entries = []
+                else:
+                    raise
             for entry in entries:
                 yield cls._get_instance_from_entry(entry, skip_exceptions=skip_exceptions)
             try:
                 next_link = soup.find('link', rel="next")
                 next_url = next_link and next_link.attrs.get('href', None)
-            except Exception:
-                next_url = None
+            except Exception as e:
+                if skip_exceptions:
+                    yield e
+                    return
+                raise
 
     @classmethod
-    def get(cls, id, proxies=None):
+    def get(cls, id, proxies=None, skip_exceptions=False):
         """
         gets a single dataservice object by id
-        raises exception on any failure to fetch or parse the object
+        raises exceptions on failure by default; skip_exceptions=True returns
+        an exception object instead of raising
         """
-        soup = cls._get_soup(cls._get_url_single(id), proxies=proxies)
-        return cls._get_instance_from_entry(soup.entry, skip_exceptions=False)
+        try:
+            soup = cls._get_soup(cls._get_url_single(id), proxies=proxies)
+            return cls._get_instance_from_entry(soup.entry, skip_exceptions=skip_exceptions)
+        except Exception as e:
+            if skip_exceptions:
+                return e
+            raise
 
     @classmethod
     def get_page(cls, order_by=None, results_per_page=50, page_num=1, proxies=None, skip_exceptions=False):
         """
         gets a page of results
         returns a generator yielding object instances
-        in case of exception in getting the http response - will raise the exception directly
-        in case of exception getting the object, behavior depends on skip_exceptions param
-        if False - will raise exception, otherwise yields KnessetDataServiceObjectException instance
+        exceptions are raised by default. When skip_exceptions is True, request
+        and feed errors are yielded as exception objects, while entry errors are
+        yielded as KnessetDataServiceObjectException instances.
         """
         if not order_by and cls.DEFAULT_ORDER_BY_FIELD:
             order_by = (cls.DEFAULT_ORDER_BY_FIELD, 'desc')
@@ -330,11 +347,16 @@ class BaseKnessetDataServiceCollectionObject(BaseKnessetDataServiceObject):
             order_by_field, order_by_dir = order_by
             order_by_field = cls.get_field(order_by_field).get_order_by_field()
             order_by = order_by_field, order_by_dir
-        soup = cls._get_soup(cls._get_url_page(order_by, results_per_page, page_num), proxies=proxies)
-        if len(soup.feed.find_all('link', attrs={'rel': 'next'})) > 0:
-            raise Exception('looks like you asked for too much results per page, 50 results per page usually works')
-        else:
-            return (cls._get_instance_from_entry(entry, skip_exceptions=skip_exceptions) for entry in soup.feed.find_all('entry'))
+        try:
+            soup = cls._get_soup(cls._get_url_page(order_by, results_per_page, page_num), proxies=proxies)
+            if len(soup.feed.find_all('link', attrs={'rel': 'next'})) > 0:
+                raise Exception('looks like you asked for too much results per page, 50 results per page usually works')
+            entries = soup.feed.find_all('entry')
+        except Exception as e:
+            if skip_exceptions:
+                return iter([e])
+            raise
+        return (cls._get_instance_from_entry(entry, skip_exceptions=skip_exceptions) for entry in entries)
 
     @classmethod
     def get_all(cls, proxies=None, skip_exceptions=False):
@@ -368,10 +390,25 @@ class BaseKnessetDataServiceFunctionObject(BaseKnessetDataServiceObject):
         }
 
     @classmethod
-    def get(cls, params, proxies=None):
-        soup = cls._get_soup(cls._get_url(params), proxies=proxies)
-        return (cls(cls._parse_element(element), proxies=proxies)
-                for element in soup.find_all('element'))
+    def _get_instance_from_element(cls, element, proxies=None, skip_exceptions=False):
+        try:
+            return cls(cls._parse_element(element), proxies=proxies)
+        except Exception as e:
+            if skip_exceptions:
+                return e
+            raise
+
+    @classmethod
+    def get(cls, params, proxies=None, skip_exceptions=False):
+        try:
+            soup = cls._get_soup(cls._get_url(params), proxies=proxies)
+            elements = soup.find_all('element')
+        except Exception as e:
+            if skip_exceptions:
+                return iter([e])
+            raise
+        return (cls._get_instance_from_element(element, proxies=proxies, skip_exceptions=skip_exceptions)
+                for element in elements)
 
 
 

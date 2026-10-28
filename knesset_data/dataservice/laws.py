@@ -36,7 +36,7 @@ class PrivateLawMk(BaseKnessetDataServiceCollectionObject):
     plaw_id = KnessetDataServiceSimpleField('plaw_id')
 
     @classmethod
-    def get_by_plaw_id(cls, plaw_id):
+    def get_by_plaw_id(cls, plaw_id, skip_exceptions=False):
         query = 'plaw_id eq %s'%plaw_id
         params = {'$filter': query}
-        return cls._get_all_pages(cls._get_url_base(), params)
+        return cls._get_all_pages(cls._get_url_base(), params, skip_exceptions=skip_exceptions)

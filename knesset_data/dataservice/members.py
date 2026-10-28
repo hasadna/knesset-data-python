@@ -48,6 +48,6 @@ class Member(BaseKnessetDataServiceCollectionObject):
     ]
 
     @classmethod
-    def get_all_present_members(cls, proxies=None):
+    def get_all_present_members(cls, proxies=None, skip_exceptions=False):
         params = {'$filter': 'mk_individual_present eq true'}
-        return cls._get_all_pages(cls._get_url_base(), params, proxies=proxies)
+        return cls._get_all_pages(cls._get_url_base(), params, proxies=proxies, skip_exceptions=skip_exceptions)

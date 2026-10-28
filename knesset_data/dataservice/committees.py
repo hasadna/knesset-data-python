@@ -36,13 +36,13 @@ class Committee(BaseKnessetDataServiceCollectionObject):
     ]
 
     @classmethod
-    def get_all_active_committees(cls, has_portal_link=True, proxies=None):
+    def get_all_active_committees(cls, has_portal_link=True, proxies=None, skip_exceptions=False):
         if has_portal_link:
             query = ' '.join((IS_COMMITTEE_ACTIVE, 'and', COMMITTEE_HAS_PORTAL_LINK))
         else:
             query = IS_COMMITTEE_ACTIVE
         params = {'$filter': query}
-        return cls._get_all_pages(cls._get_url_base(), params, proxies=proxies)
+        return cls._get_all_pages(cls._get_url_base(), params, proxies=proxies, skip_exceptions=skip_exceptions)
 
 
 class CommitteeMeeting(BaseKnessetDataServiceFunctionObject):
@@ -103,7 +103,7 @@ class CommitteeMeeting(BaseKnessetDataServiceFunctionObject):
         return "http://online.knesset.gov.il/WsinternetSps/KnessetDataService/CommitteeScheduleData.svc/CommitteeAgendaSearch"
 
     @classmethod
-    def get(cls, committee_id, from_date, to_date=None, proxies=None):
+    def get(cls, committee_id, from_date, to_date=None, proxies=None, skip_exceptions=False):
         """
         # example usage:
         >>> from datetime import datetime
@@ -118,4 +118,4 @@ class CommitteeMeeting(BaseKnessetDataServiceFunctionObject):
         }
         if to_date:
             params["ToDate"] = "'%sT00:00:00'" % to_date.strftime('%Y-%m-%d')
-        return super(CommitteeMeeting, cls).get(params, proxies=proxies)
+        return super(CommitteeMeeting, cls).get(params, proxies=proxies, skip_exceptions=skip_exceptions)

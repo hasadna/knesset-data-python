@@ -49,9 +49,9 @@ class VoteMember(BaseKnessetDataServiceCollectionObject):
         }[self.vote_result]
 
     @classmethod
-    def get_by_vote_id(cls, vote_id):
+    def get_by_vote_id(cls, vote_id, skip_exceptions=False):
         start_url = cls._get_url_base()+'?$filter=vote_id%%20eq%%20%s'%vote_id
-        return cls._get_all_pages(start_url)
+        return cls._get_all_pages(start_url, skip_exceptions=skip_exceptions)
 
 
 class Vote(BaseKnessetDataServiceCollectionObject):

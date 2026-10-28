@@ -3,7 +3,7 @@ from datetime import datetime
 
 from knesset_data.dataservice.committees import Committee, CommitteeMeeting
 from knesset_data.dataservice.exceptions import KnessetDataServiceRequestException, KnessetDataServiceObjectException
-from knesset_data.dataservice.mocks import MockMember
+from knesset_data.dataservice.mocks import MockMember, MockCommitteeMeeting
 from knesset_data.utils.testutils import data_dependant_test
 
 
@@ -15,6 +15,28 @@ class CommitteeWithVeryShortTimeoutAndInvalidService(Committee):
 class CommitteeMeetingWithVeryShortTimeoutAndInvalidService(CommitteeMeeting):
     DEFAULT_REQUEST_TIMEOUT_SECONDS = 1
     METHOD_NAME = "FOOBARBAZBAX"
+
+
+class MockMemberWithBadFeed(MockMember):
+
+    @classmethod
+    def _get_soup(cls, url, params=None, proxies=None):
+        def find(soup_instance, name, **kwargs):
+            return None
+        return type("MockSoup", (object,), {"find": find})()
+
+
+class MockMemberWithEntriesAfterErrors(MockMember):
+    SOUP_MEMBER_IDS = [203, 200]
+
+
+class MockCommitteeMeetingWithParseError(MockCommitteeMeeting):
+
+    @classmethod
+    def _parse_element(cls, element):
+        if element == 2:
+            raise Exception("committee meeting parse error")
+        return super(MockCommitteeMeetingWithParseError, cls)._parse_element(element)
 
 
 class TestDataServiceRequestExceptions(unittest.TestCase):
@@ -40,6 +62,37 @@ class TestDataServiceRequestExceptions(unittest.TestCase):
         self.assertEqual([o.message if isinstance(o, KnessetDataServiceObjectException) else o.id
                           for o in MockMember.get_page(skip_exceptions=True)],
                          [200, 201, 202, 'member with exception on init', 'member with exception on parse'])
+
+    def test_filtered_generator_propagates_skip_exceptions(self):
+        results = list(MockMember.get_all_present_members(skip_exceptions=True))
+        self.assertEqual([o.message if isinstance(o, KnessetDataServiceObjectException) else o.id
+                          for o in results],
+                         [200, 201, 202, 'member with exception on init', 'member with exception on parse'])
+
+    def test_all_pages_raises_on_feed_parse_error_by_default(self):
+        with self.assertRaises(AttributeError):
+            list(MockMemberWithBadFeed.get_all())
+
+    def test_all_pages_yields_feed_parse_error_when_skipping(self):
+        results = list(MockMemberWithBadFeed.get_all(skip_exceptions=True))
+        self.assertEqual(len(results), 1)
+        self.assertIsInstance(results[0], AttributeError)
+
+    def test_all_pages_continues_after_entry_error_when_skipping(self):
+        results = list(MockMemberWithEntriesAfterErrors.get_all(skip_exceptions=True))
+        self.assertEqual(len(results), 2)
+        self.assertIsInstance(results[0], KnessetDataServiceObjectException)
+        self.assertEqual(results[1].id, 200)
+
+    def test_function_generator_raises_parse_error_by_default(self):
+        with self.assertRaisesRegex(Exception, 'committee meeting parse error'):
+            list(MockCommitteeMeetingWithParseError.get(1, datetime(2016, 1, 1)))
+
+    def test_function_generator_yields_parse_error_when_skipping(self):
+        results = list(MockCommitteeMeetingWithParseError.get(1, datetime(2016, 1, 1), skip_exceptions=True))
+        self.assertEqual(len(results), 3)
+        self.assertIsInstance(results[1], Exception)
+        self.assertEqual(results[2].id, 3)
 
     @data_dependant_test()
     def test_committee(self):
